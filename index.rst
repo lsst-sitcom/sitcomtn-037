@@ -72,7 +72,12 @@ Deliverable 2: Rapid Analysis Calculated Metrics
   
 This is described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
 
-This will be limited to numbers/arrays (essentially plot data) and will *not* include things like plots.
+This will be limited to scalars/arrays (essentially the data for plots) and will *not* include things like plots.
+
+Derived Requirements
+^^^^^^^^^^^^^^^^^^^^
+
+
 
 .. _Deliverable 3:
 
@@ -207,3 +212,99 @@ Current thinking:
 4. Get database deployed/operational 
 5. Merge tooling/toolsets to become a unified Framework 
 6. Develop training examples (actually performed in conjunction with the previous)
+
+
+.. _Derived Requiremends:
+
+Generated Requirements
+======================
+
+Based upon the above use-cases, numerous requirements on to-be-designed and implemented systems have been derived.
+This section captures these and roughly organizes them.
+
+Processing
+----------
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
+
+**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner. 
+They need not be pre-occupied with where the data exists and why. 
+This requirement does not specify everything must be stored in a single database, although it may be a solution.
+It is also acceptable that a query returns a link to a file in the LFA.
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** The processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, base, USDF).
+
+**Rationale:** This will probably require replication of the data, analogous to the EFD.
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** Rapid analysis shall produce data products that are not critical to operations/commissioning.
+
+**Rationale:** The telescope need not stop observing if the rapid analysis fails, however, it is expected that functionality may be reduced and/or the planned observations/activities may change.
+
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** Rapid analysis data processing (and storage) shall only be run once.
+
+**Rationale:** This is a one-off on-the-fly analysis.
+Data products, even if incorrect, will remain as such.
+This is intentional to keep a record of what was available to the user (and/or scheduler) at a later time.
+Because rapid analysis is not re-run, no versioning or relationships to other calculated results in the future need to be supported.
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+
+PI: I'm not sure this is a necessary requirement. 
+Also, if the rapid analysis has something special it calculates, how can it be recalculated? 
+
+**Specification:** Observers must be able to run instances of single-frame-processing manually to support commissioning.
+
+**Rationale:** If rapid analyis fails, then users will need the capability to re-run the analyses.
+This is expected to be done either at the USDF or on the commissioning cluster.
+It is expected that this is essentially a single line of code, but will require training.
+
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** 
+
+**Rationale:**
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** 
+
+**Rationale:**
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** 
+
+**Rationale:**
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** 
+
+**Rationale:**
+
+FAFF-REQ-XXXX
+^^^^^^^^^^^^^
+**Specification:** 
+
+**Rationale:**
+
+
+
+.. _Other Findings and Identified Issues:
+
+Other Findings and Identified Issues
+====================================
+
+During the existance of this working group, numerous items were identified as problematic and needing to be addressed but either were not well fit to a charge question or fell out of the scope of the charge.
+This section contains information regarding numerous issues which were identified and require attention.

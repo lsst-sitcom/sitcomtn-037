@@ -92,13 +92,26 @@ Deliverable 3: Interacting with Rapid Analysis Metrics
       
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
+
+Simple metrics are easily captured in things like Chronograf, and are not addressed here.
+They can be considered a subset of the scalar fields case below.
+
+This section considers the case of scalar fields --> Displaying metrics as a fxn of position/amp/detector etc.
+
+
 This is:
 
 - camera visualization health tool(s).
+- Scheduler Troubleshooting
 - Extended functionality of the CVT.
 - Bokeh Apps 
 - Webpages
 - Trending plots?
+
+Useful to group into binned and unbinned metrics.
+
+- Binned: aggregated values that are pre-computed on a certain spatial scale (e.g. an amp/detector/raft)) data where the scaling can be changed and could be modified to varying scales
+- Unbinned: Value per source, per arcsec^2 etc. Depending on the case, a slider could be present to adjust the scaling on-the-fly
 
 .. _Deliverable 4:
 

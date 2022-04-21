@@ -145,12 +145,38 @@ Deliverable 5: Computing Resources (Clusters)
      This includes identifying what processes require specific hardware and/or infrastructure, identifying the more generalized analyses that may benefit from a common infrastructure, and evaluating possible solutions that can ease duplication of effort.
     
 
-Not yet ready to have this conversation, it requires completion of the above.
+- The most significant benefit of the Camera Diagnostic Cluster is that it has immediate access to the images. 
+  Secondly, is it located on the summit and can therefore continue to be used in the event of a network outage to the base. 
+  This means it is able to make display(s), such as what is done with the CVT, and perform calculations prior to the image being (potentially transferred) and subsequently ingested by the butler prior to performing calculations with the DM pipeline(s).
+
+- Rapid analysis is envisioned to run at the base, where there is significantly more computing power and storage
+- Rapid Analysis will use DM pipelines
+- Camera diagnostic cluster uses a simplified set of tools to perform rapid yet rudamentary on-the-fly calculations, all in camera space.
+  Using the DM toolset, although useful, would add significant complexity, specifically in regards to maintenance/updates, that would go largely unused if the desire was only to replace the values being calculated now during EO testing.
+
+Unfortunately, the definition of what needs to be calculated on the summit to support operations is very heavily tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
+For the sake of this charge question, the functionality of critical importance is the connection to the base, and therefore we can address this charge question by considering two separate scenarios:
+
+1. Degraded mode means the observatory is able to continue standard survey operations, but at an increased risk of obtaining poor data because of a disconnection from the rapid analysis framework.
+2. Degraded mode requires the observatory continue to receive output from the rapid analysis framework to support operations, scheduler input, or potentially QA analyses etc. 
+
+In the case of scenario 1, in the event of a network outage, the summit-based diagnostic cluster will run the CVT, and continue to perform the low-level calculations that will go into the camera's database and the EFD.
+Observers will see the images being output and be able to visually evaluate performance.
+Because no rapid-analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain enginnering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
+
+In scenario 2, where a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+- DM tooling must be installed and maintained on the diagnostic cluster
+- Rapid-analysis-critical must be developed and deployed, with the ability to only focus on a subset of detectors, and/or metrics
+- The database containing the output must be hosted on the summit, then replicated outwards
+
+Note that in the event of scenario 2, certain tasks will still be limited as the computer power is significantly lower which will result in the computations taking longer, and being only a subset.
+
+Regardless of how degraded mode is ultimately defined, this committee recommends a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
 
 .. _Deliverable 6:
 
-Deliverable 6: Computing Resources (Clusters)
----------------------------------------------
+Deliverable 6: Camera Visualization Tool Expansion Support
+-----------------------------------------------------------
 
 .. note:: 
 

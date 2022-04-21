@@ -72,17 +72,13 @@ Deliverable 2: Rapid Analysis Calculated Metrics
   
 This is described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
 
-This will be limited to scalars/arrays (essentially the data for plots) and will *not* include things like plots.
-
-Derived Requirements
-^^^^^^^^^^^^^^^^^^^^
-
+This will be limited to scalars/arrays (essentially the data for plots) and will *not* include things like plots/figures.
 
 
 .. _Deliverable 3:
 
-Deliverable 3: Interacting with Rapid Analysis Metrics
-------------------------------------------------------
+Deliverable 3: Interacting with Rapid Analysis Data and Metrics
+---------------------------------------------------------------
 
 .. note:: 
 
@@ -93,7 +89,7 @@ Deliverable 3: Interacting with Rapid Analysis Metrics
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
 
-Simple metrics are easily captured in things like Chronograf, and are not addressed here.
+Simple scalar metrics (e.g. DIMM measured seeing) are easily captured in things like Chronograf, and are not addressed here.
 They can be considered a subset of the scalar fields case below.
 
 This section considers the case of scalar fields --> Displaying metrics as a fxn of position/amp/detector etc.
@@ -103,15 +99,16 @@ This is:
 
 - camera visualization health tool(s).
 - Scheduler Troubleshooting
-- Extended functionality of the CVT.
+- Extended functionality of the CVT (but better captured in the section, `Deliverable 6`_)
 - Bokeh Apps 
 - Webpages
-- Trending plots?
+- Trending plots (see also `Deliverable 4`_ for discussion of scalar fields as a function of a 3rd axis)
 
-Useful to group into binned and unbinned metrics.
+Useful to group into aggregated (binned) and non aggregated (unbinned) metrics.
 
 - Binned: aggregated values that are pre-computed on a certain spatial scale (e.g. an amp/detector/raft)) data where the scaling can be changed and could be modified to varying scales
-- Unbinned: Value per source, per arcsec^2 etc. Depending on the case, a slider could be present to adjust the scaling on-the-fly
+- Unbinned: Value per source (e.g. photometry measurement at each previous visit).
+ Depending on the case, a slider could be present to adjust the scaling on-the-fly
 
 .. _Deliverable 4:
 
@@ -127,9 +124,28 @@ Deliverable 4: Required Non-Scalar Metrics
     
 
 This is trending, but not only in time. 
-For example, it could be a metric's evolution with airmass.
+For example, it could be a scalar field's metric as a function of a third axis.
+Examples include: PSF shape over the field as a fxn of elevation, Sky transparency as a function of time etc.
 
-This is Robert's use-case.  
+Faro computes single valued (scalar) metrics and compares against an expected value or range (e.g. a sigma or mean).
+It was decided that there is not a use-case where we are unable represent a scalar field with respect to a third axis (e.g. time/elevation etc) as a single valued metric (e.g. a mean, or stddev). 
+However, representing a field as a single metric can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
+For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is desired to have a framework to help analyze this. `FAFF-REQ-XYZZ`_ has been created to capture this functionality.
+
+When diagnosing the data, the plots and investigations can be time consuming to code up.
+Because in all FAFF related use-cases we are dealing with aggregated data, it would be useful to generate a generic application, most likely in Bokeh, that can present both sky and focal plane aggregated data as a function of a 3rd axis of interest.
+This would should be carried out with the DM DRP team which also need the same functionality and should therefore use the same toolset.
+Naturally, people should be able to fork and customize the app for specific implementations if required, although we expect that the general set of functionalities will be sufficient to support the majority of use-cases.
+
+Functionality of the tool could include:
+- Ability to flip through a 2-d data cube as a movie
+- Click on a given amp and have a plot of the value versus time, with the expecation value of the metric over plotted etc.
+- Ability to show sky maps as a function of time, and adjust the binning on-the-fly
+- Capable of mining the appropriate data given the specific faro metric (including timestamp etc)
+
+Lastly, it is recognized that the DM DRP team also needs to interact with non-aggregated data, this is outside the scope of FAFF, however, adopting a common toolset, or one that is based off the tooling being discussed here is recommended.
+
+
 
 .. _Deliverable 5:
 
@@ -301,11 +317,23 @@ FAFF-REQ-XXXX
 PI: I'm not sure this is a necessary requirement. 
 Also, if the rapid analysis has something special it calculates, how can it be recalculated? 
 
-**Specification:** Observers must be able to run instances of single-frame-processing manually to support commissioning.
+**Specification:** Observers shall be able to run instances of single-frame-processing manually to support commissioning.
 
 **Rationale:** If rapid analyis fails, then users will need the capability to re-run the analyses.
 This is expected to be done either at the USDF or on the commissioning cluster.
 It is expected that this is essentially a single line of code, but will require training.
+
+Display Tooling Requirements
+----------------------------
+
+FAFF-REQ-XYZZ
+^^^^^^^^^^^^^
+**Specification:**  Observers shall be able to reproduce faro metrics and the data that went into them.
+
+**Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
+One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
+
+
 
 
 FAFF-REQ-XXXX
@@ -347,3 +375,5 @@ Other Findings and Identified Issues
 
 During the existance of this working group, numerous items were identified as problematic and needing to be addressed but either were not well fit to a charge question or fell out of the scope of the charge.
 This section contains information regarding numerous issues which were identified and require attention.
+
+- Lack of definition regarding degraded mode(s)

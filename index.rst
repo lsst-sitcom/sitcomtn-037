@@ -14,22 +14,37 @@
 .. _SITCOM-174: https://jira.lsstcorp.org/browse/SITCOM-174
 .. _SITCOM-180: https://jira.lsstcorp.org/browse/SITCOM-180
 .. _charge: https://sitcomtn-030.lsst.io/
+.. _FAFF report: https://sitcomtn-025.lsst.io/
 
 Abstract
 ========
 
-The First-Look Analysis and Feedback Functionality Breakout Group `charge`_ #2 details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities. The focus is on deriving the required functionalities to perform inspection and analyses within ~24-hours of taking the data. This document details the answers to the charge questions and other findings.
+The First-Look Analysis and Feedback Functionality Breakout Group `charge`_ 2 details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities. 
+The focus is on deriving the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data. 
+This document details the answers to the charge questions and other findings.
 
 Executive Summary
 =================
 
-This is the summary.
+TBR
 
 
 Introduction
 ============
 
-This is the intro.
+This report addresses the second charge to the First-Look Analysis and Feedback Functionality (FAFF) Breakout Group.
+The charge was developed based on the findings during the Missing Functionality Workshop that took place February 2-3, 2022.
+The charge addresses three specific Jira tickets developed from that meeting: `SITCOM-174`_, `SITCOM-173`_, and `SITCOM-180`_.
+These are referenced throughout the report.
+
+Much of this report builds off the findings and recommendatations of the first `FAFF report`_. 
+It is expected that the readers are already familiar with the findings and recommendatations.
+
+This report is structured into sections, where the first addresses each of the charge questions individually. 
+The charge question has been copied into each section for ease-of-readability.
+After addressing each charge question is a section on findings that are pertinent to the commissioning team but fall outside the scope of the charge.
+It is recommended that these issues get addressed by either a follow-on charge or another mechanism.
+
 
 Responses to Charge Questions and Deliverables
 ==============================================
@@ -51,7 +66,14 @@ Deliverable 1: Use-Cases
 
       - Use-cases should be complete, including which inputs are required and from where they will originate (e.g. SAL Script, EFD, LFA, external source), desired manipulations, logic-based operations/calculations, and if/how the desired artefacts are presented to the user (e.g. display images and/or graphs).
   
-Use-cases for FAFF2 can be found at the bottom of the page `on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Use-Cases>`_.
+
+Numerous use cases were developed to capture the needed functionalities and assist in developing a common understanding of what is expected in each scenario.
+Each of the use cases follow a standardized `template <https://confluence.lsstcorp.org/display/LSSTCOM/On-the-fly+Analysis+Use-Case+Template>`_ which differs slightly from that which was used in the first FAFF charge.
+One major difference is that nearly all use cases made the assumption that there would be a process which created data products based on observatory telemetry and camera images that would be used as the basis for displaying information.
+Rather than each use-case stating the needed data prodcuts and explaining their generation mechanism, we created a single use-case that documents the needed values and timescales for their creation.
+We call this processing step `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`, and the data products are listed explicitly, as requested in charge question 2.
+
+The remaining use-cases for FAFF2 can be found at the bottom of the page `on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Use-Cases>`_ and are referenced throughout the remainder of this report.
 
 
 .. _Deliverable 2:
@@ -69,10 +91,51 @@ Deliverable 2: Rapid Analysis Calculated Metrics
       This list should include the relevant camera specific calculations (which are currently performed by the EO testing data reduction).
       This is expected to inform the answer to the next charge task.
 
-  
-This is described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
 
-This will be limited to scalars/arrays (essentially the data for plots) and will *not* include things like plots/figures.
+Numerous calculations are required to evaluate camera and system health and performance on rapid timescales.
+The data products discussed in this section are limited to scalars and/or arrays and does *not* include the generation of plots and/or figures.things like plots/figures.
+The high majority of the data needed on rapid timescales is consistent with a pared down version of the data products produced by the single-frame-processing (SFP)framework.
+A small number of additional values are also required, but can be quickly derived from the SFP results.
+
+Based on the committee's experience commissioning previous telescopes, instruments and surveys, three different timescales for data interaction were identified as being critical to successful commissioning:
+
+<30 seconds
+^^^^^^^^^^^
+This is the timescale where data feedback must be made available that could influence the next activity, configuration, or exposure. Examples include displaying of images and fundamental health metrics. Also engineering tasks where corrections or instrument setups may be changed, a new image is taken, and it is useful to know if the changes impacted the image as expected.
+
+The camera commissioning cluster is the first significant computing infrastructure to have access to the pixel data.
+This is where the Camera Visualization Tool (CVT) is to be run such that users can see the images with the lowest possible latency.
+It is also where the camera system conducts low-level measurements to determine camera health, such as median and standard deviation of the overscan regions.
+This is then used to help inform the camera health displays discussed in Use-Case FIXME.
+Further details regarding use of the commissioning cluster as discussed in `Deliverable 5: Computing Resources (Clusters)`_.
+
+
+~60 seconds
+^^^^^^^^^^^
+This timescale is useful when examine trending or slowly varying effects, particularily in things like image quality or transparency.
+It is a timescale where people are closely watching, but not necessarily immediately reacting.
+The addition of this category was to provide flexibility in implementation as it may be such that the prioritization of metrics can be performed.
+
+However, it is imperative that the rapid analysis framework be able to keep up with the rate of images being acquired; where that rate is governed by the survey strategy visit duration (`FAFF-REQ-XXX1`_).
+In the case of taking two 15 second snaps, it is expected that the analysis would be done on the combined images.
+The data products for the <30 and 60 second timscales are described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
+
+
+12-24 24-hours
+^^^^^^^^^^^^^^
+This timescale is important for more general commissioning activities and performance assessment that could impact observations taken in the next or subsequent nights.
+Over this timescale, a full DRP single-frame-processing pipeline needs to have been run (`FAFF-REQ-XXX2`_).
+This must include the additional values that are calculated in the Rapid Analysis Framework, which can be easily added to the SFP pipeline.
+This enables a more detailed and higher-confidence data quality evaluation to be performed, including correlation with telemetry, environmental conditions, and previous conditions and/or observations.
+It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin SV analyses, and ultimately maximize the number of human brain cycles looking at the data.
+It is fully expected that this dataset will be superseded by a subsequent DRP campaign to enforce that all the data is processed in a homogeneous way with best performing configuration of the science pipelines.
+
+It is not required that the full SVP processing be done in Chile, in fact, it may be *preferable* to perform this processing at the USDF as many of the science verification tasks are planned to be performed there as well.
+It also ensures that a minimum number of uses are connecting to Chile to perform their analysis.
+This is especially important if connctions would be required to the summit instance.
+
+
+
 
 
 .. _Deliverable 3:
@@ -130,7 +193,8 @@ Examples include: PSF shape over the field as a fxn of elevation, Sky transparen
 Faro computes single valued (scalar) metrics and compares against an expected value or range (e.g. a sigma or mean).
 It was decided that there is not a use-case where we are unable represent a scalar field with respect to a third axis (e.g. time/elevation etc) as a single valued metric (e.g. a mean, or stddev). 
 However, representing a field as a single metric can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
-For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is desired to have a framework to help analyze this. `FAFF-REQ-XYZZ`_ has been created to capture this functionality.
+For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the faro metric. 
+`FAFF-REQ-XYZZ`_ has been created to capture this functionality.
 
 When diagnosing the data, the plots and investigations can be time consuming to code up.
 Because in all FAFF related use-cases we are dealing with aggregated data, it would be useful to generate a generic application, most likely in Bokeh, that can present both sky and focal plane aggregated data as a function of a 3rd axis of interest.
@@ -204,7 +268,7 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
 This is Tony and Gregory to come up with a first crack at this. 
-Tony already has a document with questions/issues; awaiting Gregory to discuss
+Tony already has a document with questions/issues; now discussing with Gregory
 
 .. _Deliverable 7:
 
@@ -280,6 +344,13 @@ This section captures these and roughly organizes them.
 Processing
 ----------
 
+FAFF-REQ-XXX1
+^^^^^^^^^^^^^
+**Specification:** The Rapid Processing of images shall maintain the same cadence as the telescope visits.
+
+**Rationale:** The data processing must not fall behind the data being taken.
+Frames should not be skipped in order to catch up.
+
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
 **Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
@@ -291,9 +362,10 @@ It is also acceptable that a query returns a link to a file in the LFA.
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** The processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, base, USDF).
+**Specification:** The rapid analysis processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, base, USDF).
 
 **Rationale:** This will probably require replication of the data, analogous to the EFD.
+
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
@@ -310,6 +382,15 @@ FAFF-REQ-XXXX
 Data products, even if incorrect, will remain as such.
 This is intentional to keep a record of what was available to the user (and/or scheduler) at a later time.
 Because rapid analysis is not re-run, no versioning or relationships to other calculated results in the future need to be supported.
+
+
+FAFF-REQ-XXX2
+^^^^^^^^^^^^^
+**Specification:** A full single-frame-processing shall be run on images within 24 hours of observation.
+
+**Rationale:** Ideally this would be done in less than 12 hours, so people could look at it before the next night's observation, although this is a stretch goal.
+This data uses the most recent (best) science pipelines and produces the highest quality data products that are used for science verification tasks.
+
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^

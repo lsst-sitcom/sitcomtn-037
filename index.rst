@@ -135,9 +135,6 @@ It also ensures that a minimum number of uses are connecting to Chile to perform
 This is especially important if connctions would be required to the summit instance.
 
 
-
-
-
 .. _Deliverable 3:
 
 Deliverable 3: Interacting with Rapid Analysis Data and Metrics
@@ -169,7 +166,7 @@ This is:
 
 Useful to group into aggregated (binned) and non aggregated (unbinned) metrics.
 
-- Binned: aggregated values that are pre-computed on a certain spatial scale (e.g. an amp/detector/raft)) data where the scaling can be changed and could be modified to varying scales
+- Binned: aggregated values that are pre-computed on a certain spatial scale (e.g. an amp/detector/raft) data where the scaling can be changed and could be modified to varying scales
 - Unbinned: Value per source (e.g. photometry measurement at each previous visit).
  Depending on the case, a slider could be present to adjust the scaling on-the-fly
 
@@ -286,6 +283,8 @@ Deliverable 7: Catcher Development
      Subsequently, suggest a developer and/or in-kind contributor continue development.
 
 Tiago working on a proposed high-level design for this is in consultation with Angelo.
+The proposed implementation is described in `a technote <tstn-034.lsst.io>`_.
+
 
 .. _Deliverable 8:
 
@@ -302,12 +301,16 @@ Deliverable 8: Training
 
 List of possible trainings:
 
+- Creation of a job that spawns a calculation, creates an artifact, displays the artifact, and alerts a user
 - Creation of a Bokeh App to be used during the night based on already available data
-- Creation of a job that spawns a calculation, creates an artifact, and alerts a user
-- Using the CVT (as a fxn of location)
 
+- Using the CVT (as a fxn of location) - this would be a basic guide and not a bootcamp. 
    - Basic operations for viewing images
    - Interactions with DM tools/features such as source detections
+
+- Possibly out of FAFF scope - but a "bootcamp" about operationing the telescope via LOVE, and writing SAL scripts.
+
+Building a "pipetask" is out of scope for FAFF.
 
 
 .. _Deliverable 9:
@@ -323,14 +326,50 @@ Deliverable 9: Task Prioritization
      
      Where possible, these dates shall correspond to integration milestones.
 
-Current thinking:
 
-1. Define computing resources strategy (Deliverable 6)
-2. Get catcher deployed (needed for telescope engineering). Camera can continue to use it's tooling. 
-3. Get Rapid Analysis Framework deployed
-4. Get database deployed/operational 
-5. Merge tooling/toolsets to become a unified Framework 
-6. Develop training examples (actually performed in conjunction with the previous)
+The following tasks are highly parralelizable. 
+
+#. Define computing resources strategy (Deliverable 6)
+   - need to know if antu will go to the summit 
+#. Get basic camera diagnostics running at the summit.
+#. Get catcher deployed (needed for telescope engineering).  
+#. Get Rapid Analysis Framework deployed including the supporting database 
+
+   - Start with the on-the-fly processing with the goal of developing interfaces.
+     Speed enchancements can be left for a later date.
+   - Complete a chain starting with a very fundamanetal processing
+     This could be just a basic ISR and a single metric (e.g. mean signal per amp) that can be used to help flush out interface(s)
+     - metric goes into a "supporting database"
+     - Need "alert" or event saying the metric is available
+     - Visualize the metric in Chronograf (or some pre-existing tool)
+
+     Can then parralelize the expansion of each of the individual pieces
+
+#. USDF daily SFP "pipeline" can get started
+   - data can be pushed through pipelines and just leave the data in the butler
+   - Can then be expanded to "publish" the data in the "rapid analysis database"
+#. Create templates for development of Catcher, Bokeh, and possibly LOVE displays
+#. Develop training examples (actually performed in conjunction with the previous)
+
+Again, developing a common toolset between the commissioning team and the DRP, or one that is based off the tooling being discussed here, is strongly recommended.
+This is not explicitly listed as a priority as it should be a continually ongoing activity.
+
+Recommended Tools
+^^^^^^^^^^^^^^^^^
+
+Once the frameworks defined above and prior to entering commissioning, a series of additional tools need to be constructed to facilitate commissioning.
+The following is a non-exhaustive list of general tools that will be required and are not currently owned by any person and/or group.
+It does not include subsystem specific displays such as what will be required for commissioning the Active Optics System.
+
+#. An on-the-fly telescope offset calculation and implementation tool.
+#. A tool to display scalar fields, as discussed in FIXME.
+#. A display showing the calculated metrics for each image, with indicators when values are out of range.
+   The contents should be linked to down-range diagnostic tools/displays that are accessed upon "clicking."
+#. Strip charts showing data quality metrics versus observing conditions.
+#. Image summary "pages" that display basic parameters, such as the PSF fundamental properties, filter used, observatory setup etc.
+   Such as is done for Rubin TV.
+#. 
+
 
 
 .. _Derived Requiremends:

@@ -183,6 +183,7 @@ Deliverable 4: Required Non-Scalar Metrics
      Suggest a mechanism (work flow) to perform the measurement, document the finding, evaluate any trend (if applicable), then present it to the stakeholders.
     
 
+.. related to https://confluence.lsstcorp.org/display/LSSTCOM/Displaying+scalar+fields+as+a+function+of+other+parameters
 This is trending, but not only in time. 
 For example, it could be a scalar field's metric as a function of a third axis.
 Examples include: PSF shape over the field as a fxn of elevation, Sky transparency as a function of time etc.
@@ -362,7 +363,7 @@ The following is a non-exhaustive list of general tools that will be required an
 It does not include subsystem specific displays such as what will be required for commissioning the Active Optics System.
 
 #. An on-the-fly telescope offset calculation and implementation tool.
-#. A tool to display scalar fields, as discussed in FIXME.
+#. A tool to display scalar fields, as discussed in `Deliverable 4`_.
 #. A display showing the calculated metrics for each image, with indicators when values are out of range.
    The contents should be linked to down-range diagnostic tools/displays that are accessed upon "clicking."
 #. Strip charts showing data quality metrics versus observing conditions.

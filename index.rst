@@ -161,7 +161,7 @@ This is:
 - Scheduler Troubleshooting
 - Extended functionality of the CVT (but better captured in the section, `Deliverable 6`_)
 - Bokeh Apps 
-- Webpages
+- Webpages (needs expansion on how this would be used)
 - Trending plots (see also `Deliverable 4`_ for discussion of scalar fields as a function of a 3rd axis)
 
 Useful to group into aggregated (binned) and non aggregated (unbinned) metrics.
@@ -184,6 +184,7 @@ Deliverable 4: Required Non-Scalar Metrics
     
 
 .. related to https://confluence.lsstcorp.org/display/LSSTCOM/Displaying+scalar+fields+as+a+function+of+other+parameters
+
 This is trending, but not only in time. 
 For example, it could be a scalar field's metric as a function of a third axis.
 Examples include: PSF shape over the field as a fxn of elevation, Sky transparency as a function of time etc.
@@ -285,6 +286,7 @@ Deliverable 7: Catcher Development
 
 Tiago working on a proposed high-level design for this is in consultation with Angelo.
 The proposed implementation is described in `a technote <tstn-034.lsst.io>`_.
+A prototype now needs to be developed.
 
 
 .. _Deliverable 8:
@@ -300,6 +302,27 @@ Deliverable 8: Training
      These bootcamps will be used as the initial training materials.
      It is expected that In-kind contributors and/or other delegates can augment the content, provide improvements, and eventually take over some of the training.
 
+Because much of the required values when dealing with images are calculated by the rapid analysis framework, which utilizes pipe tasks, observers nor in-kind contributors can be expected to deliver code.
+The most obvious training regarding dealing with rapid analysis data is the querying of the database.
+However, so long as the implementation is built around an efd-client type tool, or even standard SQL queries, then no formal training is required.
+
+In similar vein is the usage of the CVT.
+This is not sufficiently complex to require special bootcamps.
+The CCS team will deliver a user-guide with examples to demonstrate and explain the functionality.
+
+Where special training is required is with regards to use of the Catcher, and the development of custom on-the-fly jobs, generation of artifacts, and alerts to the user.
+Because the development of the Catcher framework is in its infancy, a formal training package cannot yet be developed.
+However, upon completion, or at least the implementation of an alpha version, the following training materials will be required:
+
+#. A bootcamp, or series of bootcamps, that explains:
+   - How to create a trigger for a Catcher job based on the evalation of a boolean condition (e.g. measured value exceeds a threshold)
+   - The multiple scenarios in which an analysis job can be written and executed
+   - The multiple types of artifacts that can be generated, ranging from a single scalar, to complex data objects, to a png file.
+   - How to archive the artifact
+   - How to display an artifact, including how to deploy a Bokeh App that utilizes the aformentioned complex data object
+   - How to alert a user, specifically an operator, that an artifact is available for viewing (with a level of urgency attached)
+
+#. 
 List of possible trainings:
 
 - Creation of a job that spawns a calculation, creates an artifact, displays the artifact, and alerts a user
@@ -328,7 +351,7 @@ Deliverable 9: Task Prioritization
      Where possible, these dates shall correspond to integration milestones.
 
 
-The following tasks are highly parralelizable. 
+The following tasks are highly parralelizable, but are listed in series in rough order of importance.
 
 #. Define computing resources strategy (Deliverable 6)
    - need to know if antu will go to the summit 
@@ -369,8 +392,10 @@ It does not include subsystem specific displays such as what will be required fo
 #. Strip charts showing data quality metrics versus observing conditions.
 #. Image summary "pages" that display basic parameters, such as the PSF fundamental properties, filter used, observatory setup etc.
    Such as is done for Rubin TV.
-#. 
-
+#. Logging tool that relates a obs-id (or whatever) to all of the different areas having artifacts.  FIXME: How do we handle things that are not related to an image ID
+#. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
+#. Generic webpage containing links to commonly used, but (normally) external tools. 
+   We started a `website <obs-ops.lsst.io>`_ to host such data, Alysha Shugart and Ioana Sotuela have taken over making it more observer/user friendly and better populated; a more global effort is required.
 
 
 .. _Derived Requiremends:

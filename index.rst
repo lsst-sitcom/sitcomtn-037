@@ -289,6 +289,7 @@ For these reasons, we recommend that the Diagnostic Cluster be used to run the C
 These values will be published to DDS, and therefore the values will be archived in the EFD.
 This allows tools such as LOVE and Bokeh Apps to be used for display when required.
 With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate and publish plots.
+Where possible, this should be accomplished using the common toolsets (e.g. Bokeh etc).
 
 Camera diagnostic cluster is to use a simplified set of tools to perform rapid yet rudimentary on-the-fly calculations, all managed by the camera team.
 Examples include calculations like means and standard deviations of overscan regions etc.
@@ -298,8 +299,8 @@ Instead, these same types of calculations will also be run using the DM toolset 
 Antu at the Base
 ^^^^^^^^^^^^^^^^
 
-Rapid analysis is to be run on Antu, where there is significantly more computing power and storage. 
-The original project plan has Antu residing at the base, which has several implications, specifically in regards to what happens in the event of an outage.
+The original project plan has Antu residing at the base, acting as a general compute facility to support commissioning and summit personnel.
+Rapid analysis is to be run on Antu, where there is significantly more computing power and storage which has several implications, specifically in regards to what happens in the event of an outage.
 Another way to frame the issue, is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
 Unfortunately, the definition of what needs to be calculated on the summit to support operations is very heavily tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
 Therefore, we consider here two separate scenarios:
@@ -324,7 +325,8 @@ Regardless of how degraded mode is ultimately defined, this committee recommends
 Antu at the Summit
 ^^^^^^^^^^^^^^^^^^
 
-Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF. 
+Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
+This scenario also reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.  
 For this to be feasible, we must consider what computing resources are required to support the two main use-cases for Antu:
 
 1. Running rapid analysis and the necessary display tools
@@ -332,14 +334,18 @@ For this to be feasible, we must consider what computing resources are required 
 
 FAFF has shown that item 1 is feasible, which was presented in the `Potential Paths for Implementation`_ subsection of `Deliverable 2: Rapid Analysis Calculated Metrics`_.
 
-The full focal plane sensing..... FIXME: Awaiting information from Chuck and the I/O from the RA characterization.
+The full focal plane sensing..... FIXME: Awaiting information from RHL  and the I/O from the RA characterization.
 
 
 Of course, the projects also needs to have the capacity to store, power, and cool the machines at the summit.
 In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed. 
 FIXME: GET A MORE OFFICIAL STATEMENT from Cristian regarding current load versus capacity.
 
+FIXME: Moving RA to the summit relaxes much of the concern regarding the lack of definition on degraded mode. Also makes cluster management and maintenance easier by co-locating hardware and services.
 
+FIXME: FAFF recommends moving to the summit, even if it means the AOS calculation needs to be run at USDF. 
+
+Degraded mode then will still have IQ feedback to observers.
 
 .. _Deliverable 6:
 

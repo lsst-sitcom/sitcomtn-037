@@ -19,8 +19,8 @@
 Abstract
 ========
 
-The First-Look Analysis and Feedback Functionality Breakout Group `charge`_ 2 details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities. 
-The focus is on deriving the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data. 
+The First-Look Analysis and Feedback Functionality Breakout Group `charge`_ 2 details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities.
+The focus is on deriving the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data.
 This document details the answers to the charge questions and other findings.
 
 Executive Summary
@@ -37,14 +37,22 @@ The charge was developed based on the findings during the Missing Functionality 
 The charge addresses three specific Jira tickets developed from that meeting: `SITCOM-174`_, `SITCOM-173`_, and `SITCOM-180`_.
 These are referenced throughout the report.
 
-Much of this report builds off the findings and recommendations of the first `FAFF report`_. 
+Much of this report builds off the findings and recommendations of the first `FAFF report`_.
 It is expected that the readers are already familiar with the findings and recommendations.
 
-This report is structured into sections, where the first addresses each of the charge questions individually. 
+This report is structured into sections, where the first addresses each of the charge questions individually.
 The charge question has been copied into each section for ease-of-readability.
 After addressing each charge question is a section on findings that are pertinent to the commissioning team but fall outside the scope of the charge.
 It is recommended that these issues get addressed by either a follow-on charge or another mechanism.
 
+Rapid Analysis Capability
+-------------------------
+
+Most of the envisioned FAFF functionality requires data products based on both observatory telemetry and camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
+While developing use cases, we recorded needed input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
+
+We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>` capability that includes automated processing of single-frame camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
+The Confluence page linked above describes the needed data products and timescales for their creation, as requested in charge question 2, and the use cases developed for charge question 1 assume that the data products from this initial processing step are available.
 
 Responses to Charge Questions and Deliverables
 ==============================================
@@ -56,22 +64,19 @@ The use-cases referenced throughout the document are all found on the :ref:`pg-D
 Deliverable 1: Use-Cases
 ------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-   1. (`SITCOM-174`_, `SITCOM-173`_, `SITCOM-180`_) A series of use-cases where image data analysis is required on short timescales. 
+   1. (`SITCOM-174`_, `SITCOM-173`_, `SITCOM-180`_) A series of use-cases where image data analysis is required on short timescales.
       A reduced set of use-cases should be created as a regular reference throughout the charge.
       A set of required turn-around time(s) should be defined and assigned to each case where applicable.
 
       - Use-cases should be complete, including which inputs are required and from where they will originate (e.g. SAL Script, EFD, LFA, external source), desired manipulations, logic-based operations/calculations, and if/how the desired artifacts are presented to the user (e.g. display images and/or graphs).
-  
+
 
 Numerous use cases were developed to capture the needed functionalities and assist in developing a common understanding of what is expected in each scenario.
 Each of the use cases follow a standardized `template <https://confluence.lsstcorp.org/display/LSSTCOM/On-the-fly+Analysis+Use-Case+Template>`_ which differs slightly from that which was used in the first FAFF charge.
-One major difference is that nearly all use cases made the assumption that there would be a process which created data products based on observatory telemetry and camera images that would be used as the basis for displaying information.
-Rather than each use-case stating the needed data products and explaining their generation mechanism, we created a single use-case that documents the needed values and timescales for their creation.
-We call this processing step `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`, and the data products are listed explicitly, as requested in charge question 2.
 
 The remaining use-cases for FAFF2 can be found at the bottom of the page `on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Use-Cases>`_ and are referenced throughout the remainder of this report.
 
@@ -81,12 +86,12 @@ The remaining use-cases for FAFF2 can be found at the bottom of the page `on con
 Deliverable 2: Rapid Analysis Calculated Metrics
 ------------------------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-   2. (`SITCOM-180`_, `SITCOM-173`_) Define which metrics, analyses and artifacts must be calculated and on what timescale they must be evaluated and reported to support commissioning/operations. 
-   
+   2. (`SITCOM-180`_, `SITCOM-173`_) Define which metrics, analyses and artifacts must be calculated and on what timescale they must be evaluated and reported to support commissioning/operations.
+
       This is to evaluate if a "rapid processing" of data is required, what specific calculations are required.
       This list should include the relevant camera specific calculations (which are currently performed by the EO testing data reduction).
       This is expected to inform the answer to the next charge task.
@@ -97,17 +102,17 @@ The data products discussed in this section are limited to scalars and/or arrays
 The high majority of the data needed on rapid timescales is consistent with a pared down version of the data products produced by the single-frame-processing (SFP) framework.
 A small number of additional values are also required, but can be quickly derived from the SFP results.
 The calculated values from Rapid Analysis are not to produce data products that are critical to commissioning (`FAFF-REQ-XXX3`_), however, it is expected that observatory functionality is reduced if an outage were to occur.
-This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so. 
+This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so.
 The output from the Rapid Analysis will need to go into a database.
-Details of this are discussed in 
+Details of this are discussed in
 
 Based on the committee's experience commissioning previous telescopes, instruments and surveys, three different timescales for data interaction were identified as being critical to successful commissioning, each of which are discussed in the following subsections.
 The data products for the rapid timescales (<30 and 60 seconds) are described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
 
 <30 seconds
 ^^^^^^^^^^^
-This is the timescale where the data feedback must be made available quickly because it could potentially influence the next activity, configuration, or exposure. 
-Examples of required functionality at this timescale include displaying of images and evaluation and display of fundamental health metrics. 
+This is the timescale where the data feedback must be made available quickly because it could potentially influence the next activity, configuration, or exposure.
+Examples of required functionality at this timescale include displaying of images and evaluation and display of fundamental health metrics.
 In the case of performing engineering tasks where corrections or instrument setups are being modified, it is useful to know if the changes impacted the next image as anticipated.
 An example of this would be looking at PSF changes as a function of mirror shape or AOS configuration.
 
@@ -125,7 +130,7 @@ These values have been identified in the `Rapid Analysis Use-case <https://confl
 ^^^^^^^^^^^
 This timescale is useful when examining trending or slowly varying effects, particularly for metrics like image quality or transparency.
 It is a timescale where people are closely watching, but not necessarily immediately reacting.
-The addition of this category was to provide flexibility in implementation as it may be such that the prioritization of metrics can be performed which may provide a useful free parameter during the implementation phase. 
+The addition of this category was to provide flexibility in implementation as it may be such that the prioritization of metrics can be performed which may provide a useful free parameter during the implementation phase.
 However, it is imperative that the rapid analysis framework be able to keep up with the rate of images being acquired; where that rate is governed by the survey strategy visit duration (`FAFF-REQ-XXX1`_).
 In the case of taking two 15 second snaps, it is expected that the analysis would be done on the combined images.
 
@@ -165,12 +170,12 @@ Another important point is that Rapid Analysis only needs to run once per frame.
 Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 ---------------------------------------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
    1. (`SITCOM-174`_, `SITCOM-173`_) Define how users will interact with each aspect of the previously listed metrics, analyses and artifacts; classify them indicating where can could calculated.
-      
+
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
 
@@ -185,7 +190,7 @@ This is:
 - camera visualization health tool(s).
 - Scheduler Troubleshooting
 - Extended functionality of the CVT (but better captured in the section, `Deliverable 6`_)
-- Bokeh Apps 
+- Bokeh Apps
 - Webpages (needs expansion on how this would be used, Noteburst+Times Square is an option)
 - Trending plots (see also `Deliverable 4`_ for discussion of scalar fields as a function of a 3rd axis)
 
@@ -220,13 +225,13 @@ To aid in the implementation/amalgamation of databases, each use-case has a sect
 Deliverable 4: Required Non-Scalar Metrics
 ------------------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with faro. 
+  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with faro.
      Suggest a mechanism (work flow) to perform the measurement, document the finding, evaluate any trend (if applicable), then present it to the stakeholders.
-    
+
 
 .. related to https://confluence.lsstcorp.org/display/LSSTCOM/Displaying+scalar+fields+as+a+function+of+other+parameters
 
@@ -243,7 +248,7 @@ Similarly, the sky transparency could be handled by looking at the standard devi
 Reducing a scalar field to a scalar metric creates a more generalizable framework to communicate data, however, it comes a the expense of removing information.
 
 The most concerning issue with representing a field as a single metric is that it can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
-For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the faro metric. 
+For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the faro metric.
 `FAFF-REQ-XYZZ`_ has been created to capture the functionality of writing to disk both the calculated metric, and the object that was used to determine it.
 
 When diagnosing the data, the plots and investigations can be time consuming to code and display.
@@ -267,23 +272,23 @@ Lastly, it is recognized that the DM DRP team also needs to interact with non-ag
 Deliverable 5: Computing Resources and Infrastructure
 -----------------------------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
   5. (`SITCOM-174`_) Using the responses to questions 1-4, propose a management & maintenance structure for the Camera Diagnostic & Commissioning Clusters.
-     
+
      This includes identifying what processes require specific hardware and/or infrastructure, identifying the more generalized analyses that may benefit from a common infrastructure, and evaluating possible solutions that can ease duplication of effort.
-    
+
 As outlined in the first FAFF report, the primary Chile-based options for `significant computing power <https://sitcomtn-025.lsst.io/#available-computing-power>`_ for commissioning are the Camera Diagnostic Cluster and Antu (often referred to as the Commissioning Cluster).
-The summit cluster (Yagan) is also available for use, but is primarily alloted for the control systems, LOVE, the EFD etc. 
+The summit cluster (Yagan) is also available for use, but is primarily alloted for the control systems, LOVE, the EFD etc.
 
 
 Camera Diagnostic Cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Camera Diagnostic Cluster (CDC) is smaller in size than Antu but it has one unique capability in it has access to the pixel data a few seconds before anything else.
-One other advantage is it's location. 
+One other advantage is it's location.
 Being on the summit means that even in the event of a network failure to the base or USDF, it can continue to function and support both the hardware and observers.
 For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health.
 These values will be published to DDS, and therefore the values will be archived in the EFD.
@@ -306,7 +311,7 @@ Unfortunately, the definition of what needs to be calculated on the summit to su
 Therefore, we consider here two separate scenarios:
 
 1. Degraded mode means the observatory is able to continue standard survey operations, but at an increased risk of obtaining poor data because of a disconnection from the rapid analysis framework.
-2. Degraded mode requires the observatory continue to receive output from the rapid analysis framework to support operations, scheduler input, or potentially QA analyses etc. 
+2. Degraded mode requires the observatory continue to receive output from the rapid analysis framework to support operations, scheduler input, or potentially QA analyses etc.
 
 In the case of scenario 1, in the event of a network outage, the summit-based diagnostic cluster will run the CVT, and continue to perform the low-level calculations that will go into the camera's database and the EFD.
 Observers will see the images being output and be able to visually evaluate performance.
@@ -326,7 +331,7 @@ Antu at the Summit
 ^^^^^^^^^^^^^^^^^^
 
 Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
-This scenario also reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.  
+This scenario also reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
 For this to be feasible, we must consider what computing resources are required to support the two main use-cases for Antu:
 
 1. Running rapid analysis and the necessary display tools
@@ -338,12 +343,12 @@ The full focal plane sensing..... FIXME: Awaiting information from RHL  and the 
 
 
 Of course, the projects also needs to have the capacity to store, power, and cool the machines at the summit.
-In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed. 
+In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed.
 FIXME: GET A MORE OFFICIAL STATEMENT from Cristian regarding current load versus capacity.
 
 FIXME: Moving RA to the summit relaxes much of the concern regarding the lack of definition on degraded mode. Also makes cluster management and maintenance easier by co-locating hardware and services.
 
-FIXME: FAFF recommends moving to the summit, even if it means the AOS calculation needs to be run at USDF. 
+FIXME: FAFF recommends moving to the summit, even if it means the AOS calculation needs to be run at USDF.
 
 Degraded mode then will still have IQ feedback to observers.
 
@@ -352,16 +357,16 @@ Degraded mode then will still have IQ feedback to observers.
 Deliverable 6: Camera Visualization Tool Expansion Support
 -----------------------------------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
   6. Develop a plan and scope estimate to expand the Camera Visualization Tool to support the full commissioning effort.
-     
-     This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler. 
+
+     This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-This is Tony and Gregory to come up with a first crack at this. 
+This is Tony and Gregory to come up with a first crack at this.
 Tony already has a document with questions/issues; now discussing with Gregory
 
 .. _Deliverable 7:
@@ -369,18 +374,18 @@ Tony already has a document with questions/issues; now discussing with Gregory
 Deliverable 7: Catcher Development
 ----------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
   7. Work with project software teams to and implement an initial version of the Catcher CSC and supporting functionality.
-     
-     An initial description of required functionality was delivered in the first FAFF charge. 
+
+     An initial description of required functionality was delivered in the first FAFF charge.
      This deliverable is to implement (at least) two use-cases; one which uses image data and the other which does not.
      Subsequently, suggest a developer and/or in-kind contributor continue development.
 
 
-Does the catcher have to be able to react to results "published" by rapid analysis? 
+Does the catcher have to be able to react to results "published" by rapid analysis?
 No. No circular dependencies, faro is the afterburner working with rapid analysis results.
 
 Tiago working on a proposed high-level design for this is in consultation with Angelo.
@@ -400,7 +405,7 @@ Alert: User gets notification of probably windshake, with link to webpage
 Implementation for Prototype
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - trigger implemented in flux
-- 
+-
 
 
 
@@ -420,19 +425,19 @@ Display: Bokeh App
 Implementation for Prototype
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - trigger implemented in flux
-- 
+-
 
 
 .. _Deliverable 8:
 
 Deliverable 8: Training
 -----------------------
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
   8. Design user-level training bootcamps and materials, aimed at the level of an in-kind contributor.
-     
+
      These bootcamps will be used as the initial training materials.
      It is expected that In-kind contributors and/or other delegates can augment the content, provide improvements, and eventually take over some of the training.
 
@@ -467,23 +472,23 @@ Also out of scope, but useful to commissioning personnel, are the writing of mod
 Deliverable 9: Task Prioritization
 ----------------------------------
 
-.. note:: 
+.. note::
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-  9. A prioritized list of tasks to build-out the new functionalities with recommended end-dates. 
-     
+  9. A prioritized list of tasks to build-out the new functionalities with recommended end-dates.
+
      Where possible, these dates shall correspond to integration milestones.
 
 
 The following tasks are highly parralelizable, but are listed in series in rough order of importance.
 
 #. Define computing resources strategy (Deliverable 6)
-   - Stil evaluating if Antu (the commissionign cluster) can be relocated to the summit 
+   - Stil evaluating if Antu (the commissionign cluster) can be relocated to the summit
    - Seems probably computationally, but I/O challenges remain to be evaluated.
 #. Get basic camera diagnostics running at the summit on the camera diagnostic cluster
-#. Get catcher deployed (needed for telescope engineering).  
-#. Get Rapid Analysis Framework deployed including the supporting database 
+#. Get catcher deployed (needed for telescope engineering).
+#. Get Rapid Analysis Framework deployed including the supporting database
 
    - Start with the on-the-fly processing with the goal of developing interfaces.
      Speed enchancements can be left for a later date.
@@ -520,14 +525,14 @@ It does not include subsystem specific displays such as what will be required fo
    Such as is done for Rubin TV.
 #. Logging tool that relates a obs-id (or whatever) to all of the different areas having artifacts.  FIXME: How do we handle things that are not related to an image ID
 #. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
-#. Generic webpage containing links to commonly used, but (normally) external tools. 
+#. Generic webpage containing links to commonly used, but (normally) external tools.
    We started a `website <obs-ops.lsst.io>`_ to host such data, Alysha Shugart and Ioana Sotuela have taken over making it more observer/user friendly and better populated; a more global effort is required.
 
 
 Multiple databases that need merging:
 
 1. Scheduler database
-2. Exposure Log database (camera)  - drives camera visualization  
+2. Exposure Log database (camera)  - drives camera visualization
 
 
 .. _Derived Requiremends:
@@ -567,8 +572,8 @@ FAFF-REQ-XXX4
 ^^^^^^^^^^^^^
 **Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
 
-**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner. 
-They need not be pre-occupied with where the data exists and why. 
+**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner.
+They need not be pre-occupied with where the data exists and why.
 This requirement does not specify everything must be stored in a single database, although it may be a solution.
 It is also acceptable that a query returns a link to a file in the LFA.
 
@@ -601,8 +606,8 @@ Because rapid analysis is not re-run, no versioning or relationships to other ca
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
 
-PI: I'm not sure this is a necessary requirement. 
-Also, if the rapid analysis has something special it calculates, how can it be recalculated? 
+PI: I'm not sure this is a necessary requirement.
+Also, if the rapid analysis has something special it calculates, how can it be recalculated?
 
 **Specification:** Observers shall be able to run instances of single-frame-processing manually to support commissioning.
 
@@ -626,31 +631,31 @@ One way to satisfy this requirement is to ensure the "faro metric modules" are i
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** 
+**Specification:**
 
 **Rationale:**
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** 
+**Specification:**
 
 **Rationale:**
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** 
+**Specification:**
 
 **Rationale:**
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** 
+**Specification:**
 
 **Rationale:**
 
 FAFF-REQ-XXXX
 ^^^^^^^^^^^^^
-**Specification:** 
+**Specification:**
 
 **Rationale:**
 

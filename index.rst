@@ -36,6 +36,7 @@ This report addresses the second charge to the First-Look Analysis and Feedback 
 The charge was developed based on the findings during the Missing Functionality Workshop that took place February 2nd and 3rd, 2022.
 The charge addresses three specific Jira tickets developed from that meeting: `SITCOM-174`_, `SITCOM-173`_, and `SITCOM-180`_.
 These are referenced throughout the report.
+This working group is focused on what is needed to perform inspection and analyses required within the first 24-hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications document <ls.st/lse-30>`_.
 
 Much of this report builds off the findings and recommendations of the first `FAFF report`_.
 It is expected that the readers are already familiar with the findings and recommendations.
@@ -308,49 +309,56 @@ The original project plan has Antu residing at the base, acting as a general com
 Rapid analysis is to be run on Antu, where there is significantly more computing power and storage which has several implications, specifically in regards to what happens in the event of an outage.
 Another way to frame the issue, is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
 Unfortunately, the definition of what needs to be calculated on the summit to support operations is very heavily tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
-Therefore, we consider here two separate scenarios:
+Therefore, we consider here three separate states of functionality for the observatory in the event of an outage:
 
-1. Degraded mode means the observatory is able to continue standard survey operations, but at an increased risk of obtaining poor data because of a disconnection from the rapid analysis framework.
-2. Degraded mode requires the observatory continue to receive output from the rapid analysis framework to support operations, scheduler input, or potentially QA analyses etc.
+1. The observatory is able to continue standard survey operations with minimal functionality.
+   Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster, observers can visually evaluated performance.
+   Low-level calculations and analysis will go into the camera;s database and the EFD. 
+2. State1, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
+3. Full operations, including all processing that is planned to be performed at the USDF, such as alert processing.
 
-In the case of scenario 1, in the event of a network outage, the summit-based diagnostic cluster will run the CVT, and continue to perform the low-level calculations that will go into the camera's database and the EFD.
-Observers will see the images being output and be able to visually evaluate performance.
+Maintaining state 3 in the event of a network outage means moving all alert-system infrastructure to the summit.
+This is not practical for many reasons, nor is it a requirement, and is therefore not discussed further.
+
+In the event of a network failure, the observatory would only be able to achieve state 1.
 Because no rapid-analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
 
-In scenario 2, where a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+If we consider that the camera diagnostic cluster could perform some of the tasks considered in state 2, for example, a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
 - DM tooling must be installed and maintained on the diagnostic cluster
 - Rapid-analysis-critical must be developed and deployed, with the ability to only focus on a subset of detectors, and/or metrics
 - The database containing the output must be hosted on the summit, then replicated outwards
 
-Note that in the event of scenario 2, certain tasks will still be limited as the computer power is significantly lower which will result in the computations taking longer, and being only a subset.
+Note that the full output of Rapid Analysis cannot be computed due to the limited compute power.
 
-Regardless of how degraded mode is ultimately defined, this committee recommends that if Antu does need to stay at the base, then a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
-
+This committee suggests that if Antu does need to stay at the base, then a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
+The preferred solution is to move Antu to the summit.
 
 Antu at the Summit
 ^^^^^^^^^^^^^^^^^^
 
 Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
-This scenario also reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
-For this to be feasible, we must consider what computing resources are required to support the two main use-cases for Antu:
+This scenario reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
+In doing so, this allows states 1 and 2 to be supported when a network outage occurs.
+Furthermore, it simplifies the number of systems that require support which significantly reduces the workload of the IT group.
+However, for this to be feasible, we must consider what computing resources are required to support the two main use-cases for Antu:
 
 1. Running rapid analysis and the necessary display tools
 2. Being able to run full-focal plane wavefront sensing by pistoning the entire camera in and out of focus
 
 FAFF has shown that item 1 is feasible, which was presented in the `Potential Paths for Implementation`_ subsection of `Deliverable 2: Rapid Analysis Calculated Metrics`_.
 
-The full focal plane sensing..... FIXME: Awaiting information from RHL  and the I/O from the RA characterization.
+The full focal plane sensing..... FIXME: Awaiting information from RHL  and the I/O from the RA characterization. 
 
 
 Of course, the projects also needs to have the capacity to store, power, and cool the machines at the summit.
-In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed.
-FIXME: GET A MORE OFFICIAL STATEMENT from Cristian regarding current load versus capacity.
+In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed, however the support is based around 22 nodes or ~1400 cores, which is yagan (being upgraded to 640 cores) and antu (784 cores).
 
-FIXME: Moving RA to the summit relaxes much of the concern regarding the lack of definition on degraded mode. Also makes cluster management and maintenance easier by co-locating hardware and services.
+Therefore, FAFF ultimately recommends moving antu to the summit.
+This will add functionality in the case of an outage and decreases the workload of cluster management and maintenance by co-locating the hardware and removing one set of services.
+If the compute load is insufficient to perform all rapid analysis tasks, then we can either augment the number of machines, or reduc`e the number of detectors that are processed in the pipeline.
+If full-focal plane wavefront sensing requires more compute, we recommend moving that processing to the USDF, or if the calculation becomes truly critical to opertaions, accept the additional overhead associated with performing the calculation on fewer machines.
 
-FIXME: FAFF recommends moving to the summit, even if it means the AOS calculation needs to be run at USDF.
 
-Degraded mode then will still have IQ feedback to observers.
 
 .. _Deliverable 6:
 

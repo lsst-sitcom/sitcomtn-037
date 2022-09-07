@@ -81,6 +81,29 @@ Each of the use cases follow a standardized `template <https://confluence.lsstco
 
 The remaining use-cases for FAFF2 can be found on the FAFF use-cases page `on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Use-Cases>`_ and are referenced throughout the remainder of this report.
 
+Daytime Calibration
+^^^^^^^^^^^^^^^^^^^
+
+.. warning:: 
+
+   This section is not yet completed.
+
+
+During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how they get run and what is expected of the observing specialist.The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
+The details of how Daytime Calibration is performed is being documented in `DMTN-222 <DMTN-222.lsst.io>`_ and will not be repeated as a new use-case.
+
+In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
+This SAL script launches an OCPS-based processing of the images, but the the ScriptQueue does not block on the processing awaiting the final analysis.
+Currently, if the process fails then no alert is generated automatically.
+However, as will be discussed in the following sections, a Watcher alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).
+How the observer responds to the alert is currently being discussed.
+Presumably, this will use a parameterized notebook that will allow an observer to better understand the issue.
+Any viewing of the raw frames themselves will utilize the Camera Visualization Tool.
+
+In the case where a more complex issue arises (e.g. a 2% increase in bad pixels is observed), this is addressed by the calibration team offsite and is not immediately reported to the summit team.
+When the master calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer. Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge. 
+
+
 
 .. _Deliverable 2:
 
@@ -175,13 +198,16 @@ At the moment, it is unclear if the computing infrastructure could be augmented 
 If not, then the remaining option is to reduce the number of CCDs that get processed.
 DECam encountered the same constraints and invoked a pipeline that supports different configurations that specify various patterns of sensors to reduce.
 For example, pointing tests used just the central portion of the focal plane.
-A list of possible focal plane configurations should be created; we have already reached out to the AOS and Science Verification groups for suggestions.
+A list of possible focal plane configurations should be created; we have already reached out to the AOS[#]_ and Science Verification[#]_ groups for suggestions.
 It is recommended that Rubin adopt a similar architecture as it is not expected that any summit-based rapid analysis image quality metrics would require the full array.
 Especially since the camera diagnostic cluster handles the low-level health checks for all sensors, as is discussed in `Deliverable 5`_.
 
 The University of Washington group is now investigating the single frame performance enhancements.
 Scaling the experience gained with LATISS, it is expected that a 30s image cadence is feasible and the primary speed limitation will be the I/O constraints.
 
+.. [#] The AOS group has already communicated that a checkerboard pattern for the focal plane, while omitting the 8 outermost sensors which are highly vignetted, is satisfactory to accomplish their analysis requirements.
+
+.. [#] The Science Verification group has indicated that full-frame on-the-fly processing is not required, so long as full frame processing occurs at the USDF within 24-hours.
 
 .. _Deliverable 3:
 
@@ -231,7 +257,8 @@ Databases
 Data from the observatory will come from numerous sources and efforts should be made to minimize the number of individual databases; both for maintenance and ease-of-use reasons.
 Whereas much of the data coming off the summit is time based, and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
 
-- Rapid Analysis data needs to go into a database. Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-XXX5`_)
+- Rapid Analysis data needs to go into a database. 
+  Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-XXX5`_)
 - The database must be available at all major data facilities (`FAFF-REQ-XXX5`_), analogous to what is done for the EFD.
 - Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-XXX6`_).
 
@@ -369,14 +396,26 @@ However, we must also consider what computing resources are required to support 
 
 FAFF has shown that item 1 is feasible, which was presented in the `Potential Paths for Implementation`_ subsection of `Deliverable 2: Rapid Analysis Calculated Metrics`_, albeit with a limited number of detectors.
 The full focal plane sensing use-case suffers the same limitations of the rapid analysis framework, and has an increased computational load.
-Limiting the number of sensors is possible and discussions are on-going with the AOS group.
+Currently, the full analysis takes approximately 3 minutes using 2-cores per chip on Antu, and is independent of location.
+However, moving Antu to the summit enables this processing to occur in the event of an outage to the base.
+Speeding up this process, if required, would necessitate processing the data at the USDF, which is planning real-time support for commissioning (see `RTN-021 <rtn-021.lsst.io>`_).
+Although this does not explicitly include donut analysis, the cluster is fully capable of doing so and would not be running other real-time analysis at that time.
+A trigger to process the AOS data would be required, how this would get accomplished is under investigation.
+Discussions are currently ongoing with Richard Dubois to better define the needed support and required timeline(s).
 
-.. FIXME - add more info about this use-case
-
-Therefore, FAFF ultimately recommends moving Antu to the summit.
+Therefore, FAFF ultimately recommends moving Antu to the summit; the technical details are currently being captured in `ITTN-061 <ittn-061.lsst.io>`_.
 This will add functionality in the case of an outage and decreases the workload of cluster management and maintenance by co-locating the hardware and removing one set of services.
 If the compute load is insufficient to perform all rapid analysis tasks, then we can either augment the number of machines, or reduce the number of detectors that are processed in the pipeline.
-If full-focal plane wavefront sensing requires more compute, we recommend moving that processing to the USDF, or if the calculation becomes truly critical to operations, accept the additional overhead associated with performing the calculation on fewer machines.
+In discussions with both the AOS and Science Verification teams, using ~50% of the detector has not been met with any resistance.
+If full-focal plane wavefront sensing requires more compute, we recommend moving that processing to the USDF and developing an automatic trigger mechanism.
+In the case where the link to USDF is lost, it will be required to accept the additional overhead associated with performing the calculation on fewer machines on Antu [#]_, which is the originally baselined plan.
+
+
+.. [#] A single full focal plane analysis currently takes ~3 min with 2 cores per chip. Note that Rapid analysis does not need to be run on these images, thus saving compute time, but it is important to make sure the processes are setup such that they do not compete.
+
+.. RA triggers same as PP. 
+.. Working on getting data processed via SFP. 
+.. AOS trigger could be by via OCPS but could be different.
 
 
 .. _Deliverable 6:
@@ -568,7 +607,7 @@ It does not include subsystem specific displays such as what will be required fo
 #. Logging tool that relates a obs-id (or whatever) to all of the different areas having artifacts.  FIXME: How do we handle things that are not related to an image ID
 #. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
 #. Generic webpage containing links to commonly used, but (normally) external tools.
-   We started a `website <obs-ops.lsst.io>`_ to host such data, Alysha Shugart and Ioana Sotuela have taken over making it more observer/user friendly and better populated; a more global effort is required.
+   We started a `website <obs-ops.lsst.io>`_ to host such data, it is meant to be observer focused and is currently being better populated, however, a more global effort is required.
 
 
 Multiple databases that need merging:
@@ -577,7 +616,7 @@ Multiple databases that need merging:
 2. Exposure Log database (camera)  - drives camera visualization
 
 
-.. _Derived Requiremends:
+.. _Derived Requirements:
 
 Generated Requirements
 ======================
@@ -712,3 +751,4 @@ During the existence of this working group, numerous items were identified as pr
 This section contains information regarding numerous issues which were identified and require attention.
 
 - Lack of definition regarding degraded mode(s)
+

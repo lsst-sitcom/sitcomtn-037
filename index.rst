@@ -54,6 +54,7 @@ While developing use cases, we recorded needed input data products and associate
 
 We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated processing of single-frame camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
 The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2, and the use cases developed for charge question 1 assume that the data products from this initial processing step are available.
+In this report, Rapid Analysis does NOT refer to a specific instance of a data reduction pipeline, but rather refers to a capability that could be realized by one of the planned data reduction pipelines (e.g., Prompt Processing) or another dedicated pipeline.
 
 Responses to Charge Questions and Deliverables
 ==============================================
@@ -124,8 +125,8 @@ Deliverable 2: Rapid Analysis Calculated Metrics
 
 
 Numerous calculations are required to evaluate camera and system health and performance on rapid timescales.
-The data products discussed in this section are limited to scalars and/or arrays and does *not* include the generation of plots and/or figures.
-The high majority of the data needed on rapid timescales is consistent with a pared down version of the data products produced by the single-frame-processing (SFP) framework.
+The data products discussed in this section are limited to scalars and/or arrays and do *not* include diagnostic plots and/or figures (visualization use cases are discussed separately).
+The large majority of data products needed on rapid timescales are produced as part of the Science Pipelines single-frame-processing (SFP) framework.
 A small number of additional values are also required, but can be quickly derived from the SFP results.
 The calculated values from Rapid Analysis are not to produce data products that are critical to commissioning (`FAFF-REQ-XXX3`_), however, it is expected that observatory functionality is reduced if an outage were to occur.
 This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so.

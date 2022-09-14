@@ -19,7 +19,7 @@
 Abstract
 ========
 
-The First-Look Analysis and Feedback Functionality Breakout Group `charge`_ 2 details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities.
+The second `charge`_ to the First-Look Analysis and Feedback Functionality Breakout Group details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities.
 The focus is on deriving the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data.
 This document details the answers to the charge questions and other findings.
 
@@ -32,11 +32,11 @@ TBR
 Introduction
 ============
 
-This report addresses the second charge to the First-Look Analysis and Feedback Functionality (FAFF) Breakout Group.
+This report addresses the second `charge`_ to the First-Look Analysis and Feedback Functionality (FAFF) Breakout Group.
 The charge was developed based on the findings during the Missing Functionality Workshop that took place February 2nd and 3rd, 2022.
 The charge addresses three specific Jira tickets developed from that meeting: `SITCOM-174`_, `SITCOM-173`_, and `SITCOM-180`_.
 These are referenced throughout the report.
-This working group is focused on what is needed to perform inspection and analyses required within the first 24-hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications Document <ls.st/lse-30>`_.
+This working group is focused on what is needed to perform inspection and analyses required within the first 24 hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications Document <ls.st/lse-30>`_.
 
 Much of this report builds off the findings and recommendations of the first `FAFF report`_.
 It is expected that the readers are already familiar with the findings and recommendations.
@@ -84,24 +84,26 @@ The remaining use-cases for FAFF2 can be found on the FAFF use-cases page `on co
 Daytime Calibration
 ^^^^^^^^^^^^^^^^^^^
 
-.. warning:: 
+.. warning::
 
    This section is not yet completed.
 
 
-During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how they get run and what is expected of the observing specialist.The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
+During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how calibration data products are generated and what is expected of the observing specialist.
+The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
 The details of how Daytime Calibration is performed is being documented in `DMTN-222 <DMTN-222.lsst.io>`_ and will not be repeated as a new use-case.
 
 In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
-This SAL script launches an OCPS-based processing of the images, but the the ScriptQueue does not block on the processing awaiting the final analysis.
+This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
 Currently, if the process fails then no alert is generated automatically.
 However, as will be discussed in the following sections, a Watcher alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).
 How the observer responds to the alert is currently being discussed.
 Presumably, this will use a parameterized notebook that will allow an observer to better understand the issue.
 Any viewing of the raw frames themselves will utilize the Camera Visualization Tool.
 
-In the case where a more complex issue arises (e.g. a 2% increase in bad pixels is observed), this is addressed by the calibration team offsite and is not immediately reported to the summit team.
-When the master calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer. Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge. 
+In the case where a more complex issue arises (e.g., a 2% increase in bad pixels is observed), this is addressed by the calibration team offsite and is not immediately reported to the summit team.
+When the master calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
+Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
 
 
@@ -179,7 +181,7 @@ Potential Paths for Implementation
 
 The rapid analysis framework relies heavily on single frame processing, and therefore is very compatible with both the DRP and the Alert Production Pipelines.
 However, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the APP team in the development of rapid analysis.
-Another important point is that Rapid Analysis only needs to run once per frame. 
+Another important point is that Rapid Analysis only needs to run once per frame.
 Even upon a failure to produce one of the parameters, or the publishing of an incorrect result, the system will not be rerun and therefore the database containing the results does not need to support versioning or relationships to previous results.
 
 A re-occurring concern has been whether or not the Antu cluster can support the rapid analysis framework.
@@ -190,7 +192,7 @@ FAFF has worked with Rubin project members to create a preliminary analysis of t
 
 - ~4 cores per CCD are required to perform the data processing
 - Using the full 189 CCDs also requires 756 cores which is nearly the entire Antu cluster (784 cores)
-- To support required data Input/Output (I/O), a cluster would ideally have a small number of cores per node, then spread the data out across multiple disks. 
+- To support required data Input/Output (I/O), a cluster would ideally have a small number of cores per node, then spread the data out across multiple disks.
   Antu has a high core-to-node ratio, and is therefore likely unable to run rapid analysis for the entire array at a ~30s cadence.
 
 
@@ -222,7 +224,7 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
-.. warning:: 
+.. warning::
 
    This section is not yet completed.
 
@@ -245,7 +247,7 @@ It is useful to group into aggregated (binned) and non-aggregated (unbinned) met
 
 - Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified. Depending on the case, a slider could be present to adjust the scaling on-the-fly
 - Unbinned: Value per source (e.g. photometry measurement at each previous visit).
- 
+
 After significant discussion, it was determined that operations on the mountain and within the first ~24 hours of taking data, it is sufficient to deal with *only* aggregated data.
 However, multiple forms of aggregation need to be supported (per amp, per detector, per raft, per HEALPix, sq degree etc.)
 Analysis of unbinned data is clearly needed for pipeline data quality analyses, however, this is not something that will be diagnosed during the night by the summit crew.
@@ -257,7 +259,7 @@ Databases
 Data from the observatory will come from numerous sources and efforts should be made to minimize the number of individual databases; both for maintenance and ease-of-use reasons.
 Whereas much of the data coming off the summit is time based, and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
 
-- Rapid Analysis data needs to go into a database. 
+- Rapid Analysis data needs to go into a database.
   Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-XXX5`_)
 - The database must be available at all major data facilities (`FAFF-REQ-XXX5`_), analogous to what is done for the EFD.
 - Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-XXX6`_).
@@ -358,7 +360,7 @@ Therefore, we consider here three separate states of functionality for the obser
 
 1. The observatory is able to continue standard survey operations with minimal functionality.
    Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster, observers can visually evaluated performance.
-   Low-level calculations and analysis will go into the camera;s database and the EFD. 
+   Low-level calculations and analysis will go into the camera;s database and the EFD.
 2. State 1, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
 3. Full operations, including all processing that is planned to be performed at the USDF, such as alert processing.
 
@@ -413,8 +415,8 @@ In the case where the link to USDF is lost, it will be required to accept the ad
 
 .. [#] A single full focal plane analysis currently takes ~3 min with 2 cores per chip. Note that Rapid analysis does not need to be run on these images, thus saving compute time, but it is important to make sure the processes are setup such that they do not compete.
 
-.. RA triggers same as PP. 
-.. Working on getting data processed via SFP. 
+.. RA triggers same as PP.
+.. Working on getting data processed via SFP.
 .. AOS trigger could be by via OCPS but could be different.
 
 
@@ -432,10 +434,10 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-.. warning:: 
+.. warning::
 
    This section is not yet completed.
-.. 
+..
    This is Tony and Gregory to come up with a first crack at this.
    Tony already has a document with questions/issues; now discussing with Gregory
 
@@ -455,12 +457,12 @@ Deliverable 7: Catcher Development
      Subsequently, suggest a developer and/or in-kind contributor continue development.
 
 
-.. warning:: 
+.. warning::
 
    This section is not yet completed.
 
 
-.. 
+..
    Does the catcher have to be able to react to results "published" by rapid analysis?
    No. No circular dependencies, faro is the afterburner working with rapid analysis results.
 
@@ -557,7 +559,7 @@ Deliverable 9: Task Prioritization
 
      Where possible, these dates shall correspond to integration milestones.
 
-.. warning:: 
+.. warning::
 
    This section is not yet completed.
 
@@ -708,7 +710,7 @@ FAFF-REQ-XYZZ
 One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
 
-.. 
+..
 
    FAFF-REQ-XXXX
    ^^^^^^^^^^^^^

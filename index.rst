@@ -229,7 +229,7 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
    This section is not yet completed.
 
-Simple scalar metrics (e.g. DIMM measured seeing) are easily captured in tools like Chronograf, and are not addressed here.
+Simple scalar metrics (e.g., DIMM measured seeing) are easily visualized with tools like Chronograf, and are not addressed here.
 They can be considered a subset of the scalar fields case below.
 This section considers the case of scalar fields, where the same metric is plotted for multiple data origins.
 A straightforward example to consider is a metric as a function of detector and/or amplifier on the focal plane.
@@ -354,22 +354,24 @@ Antu at the Base
 ^^^^^^^^^^^^^^^^
 
 The original project plan has Antu residing at the base, acting as a general compute facility to support commissioning and summit personnel.
-Rapid analysis is to be run on Antu, where there is significantly more computing power and storage which has several implications, specifically in regards to what happens in the event of an outage, this was discussed in `Deliverable 2`_.
-Another way to frame the issue, is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
+Rapid analysis is to be run on Antu, where there is significantly more computing power and storage.
+This has several implications for what happens in the event of an outage, as discussed in `Deliverable 2`_.
+Another way to frame the issue is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
 Unfortunately, the definition of what needs to be calculated on the summit to support operations is very heavily tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
 Therefore, we consider here three separate states of functionality for the observatory in the event of an outage:
 
-1. The observatory is able to continue standard survey operations with minimal functionality.
-   Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster, observers can visually evaluated performance.
-   Low-level calculations and analysis will go into the camera;s database and the EFD.
-2. State 1, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
-3. Full operations, including all processing that is planned to be performed at the USDF, such as alert processing.
+1. State 1: The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.
+   Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster and observers can visually inspect raw images and images with minimal instrument signature removal.
+   Low-level calculations and analysis will go into the camera database and the EFD.
+2. State 2: As above, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
+3. State 3: Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
 
-Maintaining state 3 in the event of a network outage means moving all alert-system infrastructure to the summit.
+Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit.
 This is not practical for many reasons, nor is it a requirement, and is therefore not discussed further.
 
-In the event of a network failure, the observatory would only be able to achieve state 1.
-Because no rapid-analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
+In the event of a network failure between summit and base, the observatory would at most be able to achieve State 1.
+Because no Rapid Analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
+CHECK IF AOS
 
 If we consider that the camera diagnostic cluster could perform some of the tasks considered in state 2, for example, a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
 - DM tooling must be installed and maintained on the diagnostic cluster

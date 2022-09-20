@@ -36,7 +36,7 @@ This report addresses the second `charge`_ to the First-Look Analysis and Feedba
 The charge was developed based on the findings during the Missing Functionality Workshop that took place February 2nd and 3rd, 2022.
 The charge addresses three specific Jira tickets developed from that meeting: `SITCOM-174`_, `SITCOM-173`_, and `SITCOM-180`_.
 These are referenced throughout the report.
-This working group is focused on what is needed to perform inspection and analyses required within the first 24 hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications Document <ls.st/lse-30>`_.
+This working group is focused on what is needed to perform inspection and analyses required within the first 24 hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications Document <https://ls.st/lse-30>`_.
 
 Much of this report builds off the findings and recommendations of the first `FAFF report`_.
 It is expected that the readers are already familiar with the findings and recommendations.
@@ -59,7 +59,7 @@ In this report, Rapid Analysis does NOT refer to a specific instance of a data r
 Responses to Charge Questions and Deliverables
 ==============================================
 
-The use-cases referenced throughout the document are all found on the :ref:`pg-D1-Use-cases` page.
+The use-cases referenced throughout the document are all found on the `dedicated confluence page <https://confluence.lsstcorp.org/display/LSSTCOM/Use-Cases>`_ and are further described below.
 
 .. _Deliverable 1:
 
@@ -92,7 +92,7 @@ Daytime Calibration
 
 During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how calibration data products are generated and what is expected of the observing specialist.
 The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
-The details of how Daytime Calibration is performed is being documented in `DMTN-222 <DMTN-222.lsst.io>`_ and will not be repeated as a new use-case.
+The details of how Daytime Calibration is performed is being documented in `DMTN-222 <https://DMTN-222.lsst.io>`_ and will not be repeated as a new use-case.
 
 In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
 This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
@@ -103,7 +103,7 @@ Presumably, this will use a parameterized notebook that will allow an observer t
 Any viewing of the raw frames themselves will utilize the Camera Visualization Tool.
 
 In the case where a more complex issue arises (e.g., a 2% increase in bad pixels is observed), this is addressed by the calibration team offsite and is not immediately reported to the summit team.
-When the master calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
+When the calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
 Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
 
@@ -403,12 +403,12 @@ FAFF has shown that item 1 is feasible, which was presented in the `Potential Pa
 The full focal plane sensing use-case suffers the same limitations of the rapid analysis framework, and has an increased computational load.
 Currently, the full analysis takes approximately 3 minutes using 2-cores per chip on Antu, and is independent of location.
 However, moving Antu to the summit enables this processing to occur in the event of an outage to the base.
-Speeding up this process, if required, would necessitate processing the data at the USDF, which is planning real-time support for commissioning (see `RTN-021 <rtn-021.lsst.io>`_).
+Speeding up this process, if required, would necessitate processing the data at the USDF, which is planning real-time support for commissioning (see `RTN-021 <https://rtn-021.lsst.io>`_).
 Although this does not explicitly include donut analysis, the cluster is fully capable of doing so and would not be running other real-time analysis at that time.
 A trigger to process the AOS data would be required, how this would get accomplished is under investigation.
 Discussions are currently ongoing with Richard Dubois to better define the needed support and required timeline(s).
 
-Therefore, FAFF ultimately recommends moving Antu to the summit; the technical details are currently being captured in `ITTN-061 <ittn-061.lsst.io>`_.
+Therefore, FAFF ultimately recommends moving Antu to the summit; the technical details are currently being captured in `ITTN-061 <https://ittn-061.lsst.io>`_.
 This will add functionality in the case of an outage and decreases the workload of cluster management and maintenance by co-locating the hardware and removing one set of services.
 If the compute load is insufficient to perform all rapid analysis tasks, then we can either augment the number of machines, or reduce the number of detectors that are processed in the pipeline.
 In discussions with both the AOS and Science Verification teams, using ~50% of the detector has not been met with any resistance.
@@ -612,7 +612,7 @@ It does not include subsystem specific displays such as what will be required fo
 #. Logging tool that relates a obs-id (or whatever) to all of the different areas having artifacts.  FIXME: How do we handle things that are not related to an image ID
 #. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
 #. Generic webpage containing links to commonly used, but (normally) external tools.
-   We started a `website <obs-ops.lsst.io>`_ to host such data, it is meant to be observer focused and is currently being better populated, however, a more global effort is required.
+   We started a `website <https://obs-ops.lsst.io>`_ to host such data, it is meant to be observer focused and is currently being better populated, however, a more global effort is required.
 
 
 Multiple databases that need merging:
@@ -627,7 +627,9 @@ Generated Requirements
 ======================
 
 Based upon the above use-cases, numerous requirements on to-be-designed and implemented systems have been derived.
-This section captures these and roughly organizes them.
+This section captures these and roughly organizes them by application.
+
+The requirements below are in addition to what was presented in the first `FAFF report`_.
 
 Processing
 ----------
@@ -689,21 +691,15 @@ This is intentional to keep a record of what was available to the user (and/or s
 Because rapid analysis is not re-run, no versioning or relationships to other calculated results in the future need to be supported.
 
 
-FAFF-REQ-XXXX
+FAFF-REQ-XXX8
 ^^^^^^^^^^^^^
-
-PI: I'm not sure this is a necessary requirement.
-Also, if the rapid analysis has something special it calculates, how can it be recalculated?
-
 **Specification:** Observers shall be able to run instances of single-frame-processing manually to support commissioning.
 
 **Rationale:** If rapid analysis fails, then users will need the capability to re-run the analyses.
 This is expected to be done either at the USDF or on the commissioning cluster.
+The results are not to go into the rapid analysis (or any other shared) database.
 It is expected that this is essentially a single line of code, but will require training.
 
-
-Display Tooling Requirements
-----------------------------
 
 FAFF-REQ-XYZZ
 ^^^^^^^^^^^^^
@@ -712,32 +708,19 @@ FAFF-REQ-XYZZ
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
 One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
+Display Tooling Requirements
+----------------------------
+
+Most display tooling requirements are found in the first `FAFF report`_.
+
+FAFF-REQ-XX09
+^^^^^^^^^^^^^
+
+**Specification:** Display a histogram based on selected region.
+
+**Rationale:** This is a functionality widely used by the camera team.
 
 ..
-
-   FAFF-REQ-XXXX
-   ^^^^^^^^^^^^^
-   **Specification:**
-
-   **Rationale:**
-
-   FAFF-REQ-XXXX
-   ^^^^^^^^^^^^^
-   **Specification:**
-
-   **Rationale:**
-
-   FAFF-REQ-XXXX
-   ^^^^^^^^^^^^^
-   **Specification:**
-
-   **Rationale:**
-
-   FAFF-REQ-XXXX
-   ^^^^^^^^^^^^^
-   **Specification:**
-
-   **Rationale:**
 
    FAFF-REQ-XXXX
    ^^^^^^^^^^^^^

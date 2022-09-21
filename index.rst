@@ -1,4 +1,4 @@
-:tocdepth: 1
+:tocdepth: 2
 
 .. sectnum::
 
@@ -330,50 +330,58 @@ Deliverable 5: Computing Resources and Infrastructure
      This includes identifying what processes require specific hardware and/or infrastructure, identifying the more generalized analyses that may benefit from a common infrastructure, and evaluating possible solutions that can ease duplication of effort.
 
 As outlined in the first FAFF report, the primary Chile-based options for `significant computing power <https://sitcomtn-025.lsst.io/#available-computing-power>`_ for commissioning are the Camera Diagnostic Cluster and Antu (often referred to as the Commissioning Cluster).
-The summit cluster (Yagan) is also available for use, but is primarily alloted for the control systems, LOVE, the EFD etc.
+The summit cluster (Yagan) is also available for use, but is primarily allocated for the control systems, e.g., LOVE, EFD.
 
 
 Camera Diagnostic Cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Camera Diagnostic Cluster (CDC) is smaller in size than Antu but it has one unique capability in it has access to the pixel data a few seconds before anything else.
-One other advantage is it's location.
-Being on the summit means that even in the event of a network failure to the base or USDF, it can continue to function and support both the hardware and observers.
+The Camera Diagnostic Cluster (CDC) is smaller in size than Antu but it has access to the pixel data a few seconds before any other compute resource.
+The Camera Diagnostic Cluster is located at the summit, meaning that even in the event of a network failure to the base or USDF, it can continue to function and support both the hardware and observers.
 For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health.
 These values will be published to DDS, and therefore the values will be archived in the EFD.
 This allows tools such as LOVE and Bokeh Apps to be used for display when required.
-With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate and publish plots.
-Where possible, this should be accomplished using the common toolsets (e.g. Bokeh etc).
+With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate, publish, or visualize plots.
+Where possible, this should be accomplished using the common toolsets (e.g., Bokeh).
 
-Camera diagnostic cluster is to use a simplified set of tools to perform rapid yet rudimentary on-the-fly calculations, all managed by the camera team.
-Examples include calculations like means and standard deviations of overscan regions etc.
+The Camera Diagnostic Cluster will use a simplified set of tools to perform rudimentary on-the-fly calculations, for example, means and standard deviations of overscan regions.
+These analyses will be developed and managed by the camera team.
 Using the DM tool set, although useful, would add significant complexity, specifically in regards to maintenance and updates, that would go largely unused if the desire was only to replace the values being calculated now during EO testing.
-Instead, these same types of calculations will also be run using the DM tool set as part of the Rapid Analysis Pipeline.
+Instead, those more sophisticated types of calculations will be run using the DM tool set as part of the Rapid Analysis Pipeline.
 
-Antu at the Base
-^^^^^^^^^^^^^^^^
+Antu at the Base (Current Baseline)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The original project plan has Antu residing at the base, acting as a general compute facility to support commissioning and summit personnel.
-Rapid analysis is to be run on Antu, where there is significantly more computing power and storage.
-This has several implications for what happens in the event of an outage, as discussed in `Deliverable 2`_.
+The original project plan has Antu residing at the base in La Serena, acting as a general compute facility to support commissioning and summit personnel.
+Rapid analysis would be to be run on Antu, where there is significantly more computing power and storage than the Camera Diagnostic Cluster.
+This has several implications for what happens in the event of a communications outage between summit and base, as discussed in `Deliverable 2`_.
 Another way to frame the issue is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
-Unfortunately, the definition of what needs to be calculated on the summit to support operations is very heavily tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
+Unfortunately, the definition of what needs to be calculated on the summit to support operations is closely tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
 Therefore, we consider here three separate states of functionality for the observatory in the event of an outage:
 
-1. State 1: The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.
+1. The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.
    Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster and observers can visually inspect raw images and images with minimal instrument signature removal.
    Low-level calculations and analysis will go into the camera database and the EFD.
-2. State 2: As above, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
-3. State 3: Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
+2. As above, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
+3. Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
+
+State 1:
+   The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.
+   Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster and observers can visually inspect raw images and images with minimal instrument signature removal.
+   Low-level calculations and analysis will go into the camera database and the EFD.
+State 2:
+   As above, with the addition of the rapid analysis framework to support operations, scheduler input, QA analyses etc.
+State 3:
+   Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
 
 Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit.
 This is not practical for many reasons, nor is it a requirement, and is therefore not discussed further.
 
 In the event of a network failure between summit and base, the observatory would at most be able to achieve State 1.
 Because no Rapid Analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
-CHECK IF AOS
 
-If we consider that the camera diagnostic cluster could perform some of the tasks considered in state 2, for example, a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+If we consider that the camera diagnostic cluster could perform some of the tasks considered in State 2, for example, a subset of rapid analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+
 - DM tooling must be installed and maintained on the diagnostic cluster
 - Rapid-analysis-critical must be developed and deployed, with the ability to only focus on a subset of detectors, and/or metrics
 - The database containing the output must be hosted on the summit, then replicated outwards
@@ -383,8 +391,8 @@ Note that the full output of Rapid Analysis cannot be computed due to the limite
 This committee suggests that if Antu does need to stay at the base, then a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
 The preferred solution is to move Antu to the summit.
 
-Antu at the Summit
-^^^^^^^^^^^^^^^^^^
+Antu at the Summit (Proposed Change)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
 This scenario reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
@@ -570,8 +578,10 @@ Deliverable 9: Task Prioritization
 The following tasks can be highly parallelized, but are listed in series in rough order of importance.
 
 #. Define computing resources strategy (Deliverable 6)
+
    - Still evaluating if Antu (the commissioning cluster) can be relocated to the summit
    - Seems probably computationally, but I/O challenges remain to be evaluated.
+
 #. Get basic camera diagnostics running at the summit on the camera diagnostic cluster
 #. Get catcher deployed (needed for telescope engineering).
 #. Get Rapid Analysis Framework deployed including the supporting database
@@ -580,6 +590,7 @@ The following tasks can be highly parallelized, but are listed in series in roug
      Speed enhancements can be left for a later date.
    - Complete a chain starting with a very fundamental processing
      This could be just a basic ISR and a single metric (e.g. mean signal per amp) that can be used to help flush out interface(s)
+
      - metric goes into a "supporting database"
      - Need "alert" or event saying the metric is available
      - Visualize the metric in Chronograf (or some pre-existing tool)
@@ -587,8 +598,10 @@ The following tasks can be highly parallelized, but are listed in series in roug
      Can then parallelize the expansion of each of the individual pieces
 
 #. USDF daily SFP "pipeline" can get started
+
    - data can be pushed through pipelines and just leave the data in the butler
    - Can then be expanded to "publish" the data in the "rapid analysis database"
+
 #. Create templates for development of Catcher, Bokeh, and possibly LOVE displays
 #. Develop training examples (actually performed in conjunction with the previous)
 

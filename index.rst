@@ -128,7 +128,7 @@ Numerous calculations are required to evaluate camera and system health and perf
 The data products discussed in this section are limited to scalars and/or arrays and do *not* include diagnostic plots and/or figures (visualization use cases are discussed separately).
 The large majority of data products needed on rapid timescales are produced as part of the Science Pipelines single-frame-processing (SFP) framework.
 A small number of additional values are also required, but can be quickly derived from the SFP results.
-The calculated values from Rapid Analysis are not to produce data products that are critical to commissioning (`FAFF-REQ-XXX3`_), however, it is expected that observatory functionality is reduced if an outage were to occur.
+The calculated values from Rapid Analysis are not to produce data products that are critical to commissioning (`FAFF-REQ-0053`_), however, it is expected that observatory functionality is reduced if an outage were to occur.
 This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so.
 The output from the Rapid Analysis will need to go into a database.
 Details of this are database are discussed in `Deliverable 3`_.
@@ -158,7 +158,7 @@ These values have been identified in the `Rapid Analysis Use-case <https://confl
 This timescale is useful when examining trending or slowly varying effects, particularly for metrics like image quality or transparency.
 It is a timescale where people are closely watching, but not necessarily immediately reacting.
 The addition of this category was to provide flexibility in implementation as it may be such that the prioritization of metrics can be performed which may provide a useful free parameter during the implementation phase.
-However, it is imperative that the rapid analysis framework be able to keep up with the rate of images being acquired; where that rate is governed by the survey strategy visit duration (`FAFF-REQ-XXX1`_).
+However, it is imperative that the rapid analysis framework be able to keep up with the rate of images being acquired; where that rate is governed by the survey strategy visit duration (`FAFF-REQ-0051`_).
 In the case of taking two 15 second snaps, it is expected that the analysis would be done on the combined images.
 
 Again, the data products for the 60 second timescales are described in the Outputs section of the `Rapid Analysis Use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
@@ -167,7 +167,7 @@ Again, the data products for the 60 second timescales are described in the Outpu
 12-24 hours
 ^^^^^^^^^^^
 This timescale is important for more general commissioning activities and performance assessment that could impact observations taken in the next or subsequent nights.
-Over this timescale, a full DRP single frame processing pipeline needs to be run (`FAFF-REQ-XXX2`_).
+Over this timescale, a full DRP single frame processing pipeline needs to be run (`FAFF-REQ-0052`_).
 This must include the additional values that are calculated in the Rapid Analysis Framework, which will need to be added to the SFP pipeline.
 Re-calculation of these values enables a more detailed and higher-confidence data quality evaluation to be performed, including correlation with telemetry, environmental conditions, and previous conditions and/or observations.
 It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin SV analyses, and ultimately maximize the number of human brain cycles looking at the data.
@@ -261,13 +261,17 @@ Data from the observatory will come from numerous sources and efforts should be 
 Whereas much of the data coming off the summit is time based, and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
 
 - Rapid Analysis data needs to go into a database.
-  Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-XXX5`_)
-- The database must be available at all major data facilities (`FAFF-REQ-XXX5`_), analogous to what is done for the EFD.
-- Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-XXX6`_).
+  Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-0055`_)
+- The database must be available at all major data facilities (`FAFF-REQ-0055`_), analogous to what is done for the EFD.
+- Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-0056`_).
 
 To aid in the implementation/amalgamation of databases, each use-case has a section with example queries of how the information might be accessed (FIXME: TBR when Robert has completed his action item).
 
 
+..
+   Plot Visualization
+   ^^^^^^^^^^^^^^^^^^^
+   Use and expansion of the plot visualization tool
 
 .. _Deliverable 4:
 
@@ -298,7 +302,7 @@ Reducing a scalar field to a scalar metric creates a more generalizable framewor
 
 The most concerning issue with representing a field as a single metric is that it can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
 For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the faro metric.
-`FAFF-REQ-XYZZ`_ has been created to capture the functionality of writing to disk both the calculated metric, and the object that was used to determine it.
+`FAFF-REQ-0059`_ has been created to capture the functionality of writing to disk both the calculated metric, and the object that was used to determine it.
 
 When diagnosing the data, the plots and investigations can be time consuming to code and display.
 Because in all FAFF related use-cases we are dealing with aggregated data, it would be useful to generate a generic application, most likely in Bokeh, that can present both sky and focal plane aggregated data as a function of a 3rd axis of interest.
@@ -647,14 +651,14 @@ The requirements below are in addition to what was presented in the first `FAFF 
 Processing
 ----------
 
-FAFF-REQ-XXX1
+FAFF-REQ-0051
 ^^^^^^^^^^^^^
 **Specification:** The Rapid Processing of images shall maintain the same cadence as the telescope visits.
 
 **Rationale:** The data processing must not fall behind the data being taken.
 Frames should not be skipped in order to catch up.
 
-FAFF-REQ-XXX2
+FAFF-REQ-0052
 ^^^^^^^^^^^^^
 **Specification:** A full single-frame-processing shall be run on images within 24 hours of observation.
 
@@ -662,39 +666,14 @@ FAFF-REQ-XXX2
 This data uses the most recent (best) science pipelines and produces the highest quality data products that are used for science verification tasks.
 
 
-FAFF-REQ-XXX3
+FAFF-REQ-0053
 ^^^^^^^^^^^^^
 **Specification:** Rapid analysis shall produce data products that are not critical to operations/commissioning.
 
 **Rationale:** The telescope need not stop observing if the rapid analysis fails, however, it is expected that functionality may be reduced and/or the planned observations/activities may change.
 
 
-FAFF-REQ-XXX4
-^^^^^^^^^^^^^
-**Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
-
-**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner.
-They need not be pre-occupied with where the data exists and why.
-This requirement does not specify everything must be stored in a single database, although it may be a solution.
-It is also acceptable that a query returns a link to a file in the LFA.
-
-
-FAFF-REQ-XXX5
-^^^^^^^^^^^^^
-**Specification:** The rapid analysis processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, base, USDF).
-
-**Rationale:** This will probably require replication of the data, analogous to the EFD.
-
-
-FAFF-REQ-XXX6
-^^^^^^^^^^^^^
-**Specification:** The Scheduler must be able to access the Rapid Analysis database.
-
-**Rationale:** If the database is the EFD then this is already done.
-The Scheduler database is currently independent and needs to be merged.
-
-
-FAFF-REQ-XXX7
+FAFF-REQ-0057
 ^^^^^^^^^^^^^
 **Specification:** Rapid analysis data processing (and storage) shall only be run once.
 
@@ -704,7 +683,7 @@ This is intentional to keep a record of what was available to the user (and/or s
 Because rapid analysis is not re-run, no versioning or relationships to other calculated results in the future need to be supported.
 
 
-FAFF-REQ-XXX8
+FAFF-REQ-0058
 ^^^^^^^^^^^^^
 **Specification:** Observers shall be able to run instances of single-frame-processing manually to support commissioning.
 
@@ -714,19 +693,47 @@ The results are not to go into the rapid analysis (or any other shared) database
 It is expected that this is essentially a single line of code, but will require training.
 
 
-FAFF-REQ-XYZZ
+FAFF-REQ-0059
 ^^^^^^^^^^^^^
 **Specification:**  Observers shall be able to reproduce faro metrics and the data that went into them.
 
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
 One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
+Data Access 
+-----------
+
+FAFF-REQ-0054
+^^^^^^^^^^^^^
+**Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
+
+**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner.
+They need not be pre-occupied with where the data exists and why.
+This requirement does not specify everything must be stored in a single database, although it may be a solution.
+It is also acceptable that a query returns a link to a file in the LFA.
+
+
+FAFF-REQ-0055
+^^^^^^^^^^^^^
+**Specification:** The rapid analysis processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, Base, USDF).
+
+**Rationale:** This will probably require replication of the data, analogous to the EFD.
+
+
+FAFF-REQ-0056
+^^^^^^^^^^^^^
+**Specification:** The Scheduler must be able to access the Rapid Analysis database.
+
+**Rationale:** If the database is the EFD then this is already done.
+The Scheduler database is currently independent and needs to be merged.
+
+
 Display Tooling Requirements
 ----------------------------
 
 Most display tooling requirements are found in the first `FAFF report`_.
 
-FAFF-REQ-XX09
+FAFF-REQ-0060
 ^^^^^^^^^^^^^
 
 **Specification:** Display a histogram based on selected region.

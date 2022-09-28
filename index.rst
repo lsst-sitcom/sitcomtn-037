@@ -398,13 +398,14 @@ The preferred solution is to move Antu to the summit.
 Antu at the Summit (Proposed Change)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Another possibility which has been considered by this group is to relocated Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
+Another possibility which has been considered by this group is to relocate Antu to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
 This scenario reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
-In doing so, this allows states 1 and 2 to be supported when a network outage occurs.
+In doing so, this allows States 1 and 2 above to be supported when a network outage to the summit occurs.
 Furthermore, it simplifies the number of systems that require support which significantly reduces the workload of the IT group.
 
-The first hurdle if moving Antu to the summit is the capacity to store, power, and cool the servers.
-In discussions with Christian Silva, the Chilean IT manager, he informed us that 2500 cores can be run on Cerro Pachón if needed, however, the support is based around 22 nodes or ~1400 cores, which is Yagan (being upgraded to 640 cores) and Antu (784 cores).
+The first hurdle of moving Antu to the summit is the capacity to store, power, and cool the servers.
+The Chilean IT manager, Christian Silva, informed us that 2500 cores can be run on Cerro Pachón if needed.
+However, the support is based around 22 nodes or ~1400 cores, which is Yagan (being upgraded to 640 cores) and Antu (784 cores).
 Therefore, capacity is not an issue.
 However, we must also consider what computing resources are required to support the two main use-cases for Antu:
 
@@ -700,7 +701,7 @@ FAFF-REQ-0059
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
 One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
-Data Access 
+Data Access
 -----------
 
 FAFF-REQ-0054

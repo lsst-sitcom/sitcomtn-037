@@ -257,15 +257,26 @@ Analysis of unbinned data is clearly needed for pipeline data quality analyses, 
 Databases
 ^^^^^^^^^
 
+.. warning::
+
+   This section is not yet completed and only reports the current status.
+
 Data from the observatory will come from numerous sources and efforts should be made to minimize the number of individual databases; both for maintenance and ease-of-use reasons.
 Whereas much of the data coming off the summit is time based, and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
+The implementation of various project databases is discussed in a number of tech notes[*]_ however, the capabilities and functionalities required by the commissioning team has not been explicitly described.
 
-- Rapid Analysis data needs to go into a database.
-  Database implementation is beyond FAFF scope, but regardless of implementation users need a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-0055`_)
-- The database must be available at all major data facilities (`FAFF-REQ-0055`_), analogous to what is done for the EFD.
+.. [*] For further details, consult the following technotes, which are in various states of being written: `Sasquatch <https://sqr058.lsst.io>`_, the `Butler <https://dmtn-204.lsst.io>`,  database support for `campaigns <https://dmtn-220.lsst.io/>`_, as well as the `consolidated database <https://dmtn-227.lsst.io/>`_.
+
+FAFF is assembling a series of use-cases, specifically descriptions of database queries, to help identify the functionalities needed by the project databases.
+This content is currently hosted on `a confluence page <https://confluence.lsstcorp.org/display/LSSTCOM/Use+cases+for+commissioning+databases>`_, but the pertinent content will be merged to this report and/or the use-cases described as part of `Deliverable 1`_.
+
+Discussions have also yeilded the following requirements on the database infrastructure:
+
+-  Users require a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-0055`_).
+   Ideally, users will have the impression all queries are going to a single database, despite what is actually happening on the back-end(s).
+- The database must be available and rapidly synced to at all major data facilities (`FAFF-REQ-0055`_), analogous to what is done for the summit EFD.
 - Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-0056`_).
 
-To aid in the implementation/amalgamation of databases, each use-case has a section with example queries of how the information might be accessed (FIXME: TBR when Robert has completed his action item).
 
 
 ..
@@ -475,54 +486,68 @@ Deliverable 7: Catcher Development
 
 .. warning::
 
-   This section is not yet completed.
+   This section is not yet completed and only reports the current status.
+
+The Catcher is a name that has been assigned to a group of required functionalities, and is not necessarily the suggested name for the required tool.
+The requirements for Catcher were spelled out in the original FAFF report and will not be repeated here, however, it is essentially a service that monitors the control system for specific events and or situations, launches a detailed analysis when those events occur, then produce artifacts and/or alarms when required.
+An example of this would be if excessive jitter is seen in the telescope encoders that are possibly degrading image quality.
+In general, the Catcher is for analyses that are not associated with images, which would be done via the OCPS or the Rapid Analysis Framework.
+Also, the Catcher does not react to results published by the Rapid Analysis framework, faro is the post-processing "afterburner" that act on results from Rapid Analysis.
+
+As part of the FAFFv2 effort different implementations beyond a CSC have been explored, which focus on the two use-cases, defined in the two following subsections.
+Other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
+The Catcher high-level design work is being documented in `a technote <tstn-034.lsst.io>`_.
+The addition of new tools is not being taken lightly, but was originally thought to ease the net complexity of development, usage and maintenance.
+At this time, it appears that the fundamental issue with these tools is getting reporting from those analysis back into the control system architecture.
+An example of such an interaction is the requirement of being able to report issues to observers via LOVE.
+For this reason, it is currently looking like the Catcher will have to utilize the CSC architecture.
+
+
+Catcher Non-image Use-case
+--------------------------
+This use-case is designed to operate entirely independent of any image taking.
+
+**Trigger:** Telemetry (wind speed) passes threshold. Evaluated on a user-specified time interval (~1 minute).
+
+**Execution (job):** Gathers last ~30 minutes of wind data, fits and extrapolates into the future. 
+If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer. 
+The analysis must be persisted, a plot plot showing the extrapolation must be presented to the observer.
+
+**Alert:** User gets notification of probably windshake, with link to webpage
+
+Implementation for Prototype
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section has not yet been completed.
+
+Catcher Image-based Use-case:
+-----------------------------
+This use-case forces interactions with image telemetry.
+It is anticipated this situation will primarily apply for situations where specialized reductions are required that are not available as part of single-frame-processing.
+Presumably the calculations will be CPU intensive or they would be done for every exposure.
+
+**Trigger:** An endReadout event from a camera (e.g. LATISS)
+
+**Execution (job):** Gathers data from EFD, and calculates a metric (e.g. RMS of telescope encoders and the wind speed).
+If the metric reports back as True, then a command to the OCPS is sent to start a detailed analysis and persist the result.
+From that analysis, if a threshold is surpassed, an alert should be generated for the observer.
+Optional: assembles an object (artifact) that can be read in by a Bokeh app (could also be computed in Bokeh)
+
+**Alert:** If above threshold, user gets notification with link to artifact.
+If below threshold, artifact is archived, but no alert is issued.
+
+Implementation for Prototype
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section has not yet been completed.
+
+
+
 
 
 ..
    Does the catcher have to be able to react to results "published" by rapid analysis?
    No. No circular dependencies, faro is the afterburner working with rapid analysis results.
-
-   Tiago working on a proposed high-level design for this is in consultation with Angelo.
-   The proposed implementation is described in `a technote <tstn-034.lsst.io>`_.
-   A prototype now needs to be developed.
-
-   Following use cases are meant to flush out section 3 of https://tstn-034.lsst.io/#service-architecture
-
-   Use-case 1 (non-images)
-   -----------------------
-   Trigger (flux script): Telemetry (wind speed) passes threshold. Evaluate on a set time interval (1 minute).
-
-   Execution (job): Gathers last ~30 minutes of wind data, fits and extrapolates. If estimated wind in ~10 minutes exceeds threshold then alert user. Persist and publish the plot showing extrapolation.
-
-   Alert: User gets notification of probably windshake, with link to webpage
-
-   Implementation for Prototype
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-   - TBR
-
-   .. trigger implemented in flux
-
-
-
-
-   Use-case 2 (images)
-   -------------------
-   Based on mount jitter
-
-   Trigger: on end-readout event
-
-   Execution (job): gathers data from EFD, calculates a metric (RMS), persists the result, determines if it needs to be reported to an observer.
-   Optional: assembles an object (artifact) that can be read in by a bokeh app (could also be computed in Bokeh)
-
-   Alert: Send message (slack ok) to demonstrate ability to send alerts to an arbitrary "service" (e.g. LOVE etc)
-
-   Display: Bokeh App
-
-   Implementation for Prototype
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   - trigger implemented in flux
-   -
 
 
 .. _Deliverable 8:
@@ -577,38 +602,53 @@ Deliverable 9: Task Prioritization
 
 .. warning::
 
-   This section is not yet completed.
+   This section is not yet completed and only reports the current status.
 
 
-The following tasks can be highly parallelized, but are listed in series in rough order of importance.
+Because much of the work is highly parallelizable, this report has separated tasks into tiers and are not ranked individually.
+These tasks are consider architectural in nature, and do not include the generation of needed tools that are either system wide or subsystem specific.
+Some of these tools are discussed in the `Recommended Tools`_ section.
+Lastly, the reader should recognize that there is a lot of work to do here that can only be done by a small and specific groups of individuals.
+Coordination and management of these tasks will be critical to success of commissioning. 
 
-#. Define computing resources strategy (Deliverable 6)
 
-   - Still evaluating if Antu (the commissioning cluster) can be relocated to the summit
-   - Seems probably computationally, but I/O challenges remain to be evaluated.
+Tier 1:
+^^^^^^^
 
-#. Get basic camera diagnostics running at the summit on the camera diagnostic cluster
-#. Get catcher deployed (needed for telescope engineering).
-#. Get Rapid Analysis Framework deployed including the supporting database
+- Complete transition of Antu to summit.
+  This task is required before many of the tier 2 tasks can make significant process.
+  Specifically because the Rapid analysis framework will run on this cluster.
 
-   - Start with the on-the-fly processing with the goal of developing interfaces.
-     Speed enhancements can be left for a later date.
-   - Complete a chain starting with a very fundamental processing
-     This could be just a basic ISR and a single metric (e.g. mean signal per amp) that can be used to help flush out interface(s)
+Tier 2:
+^^^^^^^
+The following are in order of importance, but again are fairly parallelizable.
 
-     - metric goes into a "supporting database"
-     - Need "alert" or event saying the metric is available
-     - Visualize the metric in Chronograf (or some pre-existing tool)
+- Setup Camera Diagnostic Cluster
+  This includes starting to run the low level diagnostics, then progressing on the alert infrastructure.
+-  Deploy the Rapid Analysis framework on Antu
+   Initial efforts should be focused on development of interfaces and not speed.
+   Capabilities of each part can be expanded incrementally.
+   Early testing can just store metric values in the butler.
+- Develop database(s) in Sasquatch for Rapid Analysis Metrics
+- Define alert framework for the alarming metrics and for when processed images are available
 
-     Can then parallelize the expansion of each of the individual pieces
+Once the above are completed, then the following can be performed:
 
-#. USDF daily SFP "pipeline" can get started
+- Record metrics in Sasquatch database
+- Synchronize between database instances at USDF and summit
+- Start issuing alerts that metrics and processed images are available
+- Create visualizations w/ Chronograph, etc.
 
-   - data can be pushed through pipelines and just leave the data in the butler
-   - Can then be expanded to "publish" the data in the "rapid analysis database"
+Tier 3:
+^^^^^^^
 
-#. Create templates for development of Catcher, Bokeh, and possibly LOVE displays
-#. Develop training examples (actually performed in conjunction with the previous)
+- Development of the Catcher
+- Performing daily DRP "next morning" single-frame processing at USDF.
+  This is not needed to make realtime decisions during nighttime operations, but processing the results as the data streams in is acceptable (even preferred)
+  Early runs can put data into the butler, and can then be expanded to a database.
+- CVT being able to read processed images from rapid analysis or elsewhere that are persisted in the butler
+- Create templates for development of Catcher, Bokeh, and possibly LOVE displays
+- Develop training examples (actually performed in conjunction with the previous)
 
 Again, developing a common toolset between the commissioning team and the DRP, or one that is based off the tooling being discussed here, is strongly recommended.
 This is not explicitly listed as a priority as it should be a continually ongoing activity.
@@ -627,7 +667,8 @@ It does not include subsystem specific displays such as what will be required fo
 #. Strip charts showing data quality metrics versus observing conditions.
 #. Image summary "pages" that display basic parameters, such as the PSF fundamental properties, filter used, observatory setup etc.
    Such as is done for Rubin TV.
-#. Logging tool that relates a obs-id (or whatever) to all of the different areas having artifacts.  FIXME: How do we handle things that are not related to an image ID
+#. Logging tool that relates a obs-id (or other unique identifier) to all of the different areas having artifacts.  
+   Similarly, the logging tool should also allow items that are not directly related to an image ID.
 #. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
 #. Generic webpage containing links to commonly used, but (normally) external tools.
    We started a `website <https://obs-ops.lsst.io>`_ to host such data, it is meant to be observer focused and is currently being better populated, however, a more global effort is required.
@@ -742,7 +783,6 @@ FAFF-REQ-0060
 **Rationale:** This is a functionality widely used by the camera team.
 
 ..
-
    FAFF-REQ-XXXX
    ^^^^^^^^^^^^^
    **Specification:**

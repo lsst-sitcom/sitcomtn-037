@@ -648,9 +648,9 @@ Deliverable 9: Task Prioritization
 
 
 Because much of the work is highly parallelizable, this report has separated tasks into tiers and are not ranked individually.
-These tasks are consider architectural in nature, and do not include the generation of needed tools that are either system wide or subsystem specific.
-Some of these tools are discussed in the `Recommended Tools`_ section.
-Lastly, the reader should recognize that there is a lot of work to do here that can only be done by a small and specific groups of individuals.
+These tasks are consider architectural in nature and do not include the generation of tools that are system wide nor subsystem specific.
+A non-exhaustive list of these tools are discussed in the `Recommended Tools`_ section.
+Lastly, the reader should recognize that there is a lot of work to be accomplished that can only be done by small and specific groups of individuals.
 Coordination and management of these tasks will be critical to success of commissioning.
 
 
@@ -658,20 +658,20 @@ Tier 1:
 ^^^^^^^
 
 - Complete transition of Antu to summit.
-  This task is required before many of the tier 2 tasks can make significant process.
-  Specifically because the Rapid analysis framework will run on this cluster.
+  This task is required before many of the Tier 2 tasks can make significant process.
+  This is because because the Rapid Analysis framework will run on this cluster.
 
 Tier 2:
 ^^^^^^^
-The following are in order of importance, but again are fairly parallelizable.
+The following are in order of importance, but again are largely parallelizable between various parties.
 
-- Setup Camera Diagnostic Cluster
-  This includes starting to run the low level diagnostics, then progressing on the alert infrastructure.
+- Setup and configure the Camera Diagnostic Cluster.
+  This includes running and publishing the low level diagnostics, then progressing on the alert infrastructure.
 -  Deploy the Rapid Analysis framework on Antu
    Initial efforts should be focused on development of interfaces and not speed.
    Capabilities of each part can be expanded incrementally.
-   Early testing can just store metric values in the butler.
-- Develop database(s) in Sasquatch for Rapid Analysis Metrics
+   Early testing can store metric values in the Butler.
+- Develop database(s) in Sasquatch for archiving the Rapid Analysis Metrics
 - Define alert framework for the alarming metrics and for when processed images are available
 
 Once the above are completed, then the following can be performed:
@@ -686,11 +686,13 @@ Tier 3:
 
 - Development of the Catcher
 - Performing daily DRP "next morning" single-frame processing at USDF.
-  This is not needed to make realtime decisions during nighttime operations, but processing the results as the data streams in is acceptable (even preferred)
-  Early runs can put data into the butler, and can then be expanded to a database.
-- CVT being able to read processed images from rapid analysis or elsewhere that are persisted in the butler
-- Create templates for development of Catcher, Bokeh, and possibly LOVE displays
-- Develop training examples (actually performed in conjunction with the previous)
+  This capability is not required to support realtime decisions during nighttime operations.
+  There is requirement to wait until the morning to begin reductions and in fact processing the results as the data streams in is preferred.
+  Note that early runs can put data into the butler and can then be expanded to a database.
+- CVT augmented to read processed images from Rapid Analysis, then expanded to support any full frame image persisted in the Butler
+- Create templates for development of Catcher, Bokeh, and possibly LOVE displays by SIT-Com personnel and/or project software developers.
+- Develop training examples.
+  Ideally, this will be performed in conjunction with the development of templates.
 
 Again, developing a common toolset between the commissioning team and the DRP, or one that is based off the tooling being discussed here, is strongly recommended.
 This is not explicitly listed as a priority as it should be a continually ongoing activity.

@@ -27,8 +27,24 @@ This document details the answers to the charge questions and other findings.
 Executive Summary
 =================
 
-TBR
+The second First-Look Analysis and Feedback Functionality (FAFF) report details the computational tasks and interactions with resultant data products that are needed to support the full 24-hour hour cycle of sustained observatory operations.
+Starting from a set of use-cases derived from expected commissioning needs and experience with other observatories, we identified two major compute-intensive tasks that are required for near-realtime evaluation of data quality to support nighttime decision making.
+First, a **rapid analysis framework** is needed to run single-frame processing through source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
+Second, an **camera image visualization tool** is needed to rapidly display full focal plane images and zoom in to inspect pixel-level details.
+We recommend that compute resources to support both of these tasks be located on the summit so that observers have near-realtime data quality information even in the event of a network outage.
+Basic camera health diagnostics and image display capabilities will run on the Camera Diagnostic Cluster located at the summit.
+Rapid analysis would run on the commissioning (Antu) cluster that is currently in the process of being relocated to the summit.
+Making these compute resources available for use at the summit, especially rapid analysis, is the highest priority recommendation of the FAFF report.
 
+Once compute resources are available at the summit, the next priorities are to  deploy the rapid analysis framework on Antu, set up the Camera Diagnostic Cluster to perform low-level camera health checks, stand up the databases (Sasquatch) to record the time series of metric values produced by rapid analysis and camera health diagnostics, and develop the framework for generating alerts that metric values and reduced images are available.
+With this infrastructure in place, we will begin uses the tools together to generate, record, alert, and then display metric values.
+From this stage, we will expand capabilities to produce a variety of displays of time-series of metric values and corresponding telemetry data (Chronograph), scalar fields (Bokeh apps), visualizing full focal plane images (Camera Visualization tool), as well as generating alarms based on conditions and automatically producing more detailed artifacts (Catcher).
+Emphasis should initially be on exercising the interfaces between these tools and gradually expanding capabilities.
+
+While drafting the FAFF report, we explored several demonstrations of the functionality described above, but implementation of an end-to-end system is beyond the scope of group.
+Many of the tasks above can be pursued in parallel, but draw upon a specific small set of developers, and thus careful coordination and management is needed.
+We identified several capabilities, such as logging tools and a tabular summary of recent exposures with linked diagnostic information, that would already be in regular use with AuxTel observations but are not currently owned by any person/group.
+Most of the planned tooling for visualizing data quality information should be sufficiently straightforward to not require dedicated training for users.
 
 Introduction
 ============

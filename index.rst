@@ -13,6 +13,7 @@
 .. _SITCOM-173: https://jira.lsstcorp.org/browse/SITCOM-173
 .. _SITCOM-174: https://jira.lsstcorp.org/browse/SITCOM-174
 .. _SITCOM-180: https://jira.lsstcorp.org/browse/SITCOM-180
+.. _Prompt Processing: https://dmtn-219.lsst.io/
 .. _charge: https://sitcomtn-030.lsst.io/
 .. _FAFF report: https://sitcomtn-025.lsst.io/
 
@@ -50,11 +51,16 @@ Rapid Analysis Capability
 -------------------------
 
 Most of the envisioned FAFF functionality requires data products based on both observatory telemetry and camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
-While developing use cases, we recorded needed input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
+While developing use cases, we recorded the input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
 
 We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated processing of single-frame camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
-The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2, and the use cases developed for charge question 1 assume that the data products from this initial processing step are available.
-In this report, Rapid Analysis does NOT refer to a specific instance of a data reduction pipeline, but rather refers to a capability that could be realized by one of the planned data reduction pipelines (e.g., Prompt Processing) or another dedicated pipeline.
+The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2.
+The use cases developed for charge question 1 assume that the data products from this initial processing step are available.
+
+`Prompt Processing`_ is a framework for continuously processing the stream of images coming off the telescope, for example, to execute Science Pipeline payloads for Alert Production including Solar System Processing.
+Prompt Processing runs at the USDF.
+Needs for near-realtime data quality assessment could be partially addressed by a suitable payload executed with the Prompt Processing framework at USDF, provided that results are made available to the summit.
+A dedicated rapid analysis capability at the summit would ensure that on-the-fly diagnostic information is available to observers even if connection to the base is lost, as discussed in the :ref:`Antu at Summit <antu_at_summit>` scenario.
 
 Responses to Charge Questions and Deliverables
 ==============================================
@@ -406,6 +412,8 @@ Note that the full output of Rapid Analysis cannot be computed due to the limite
 This committee suggests that if Antu does need to stay at the base, then a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
 The preferred solution is to move Antu to the summit.
 
+.. _antu_at_summit:
+
 Antu at the Summit (Proposed Change)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -509,8 +517,8 @@ This use-case is designed to operate entirely independent of any image taking.
 
 **Trigger:** Telemetry (wind speed) passes threshold. Evaluated on a user-specified time interval (~1 minute).
 
-**Execution (job):** Gathers last ~30 minutes of wind data, fits and extrapolates into the future. 
-If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer. 
+**Execution (job):** Gathers last ~30 minutes of wind data, fits and extrapolates into the future.
+If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer.
 The analysis must be persisted, a plot plot showing the extrapolation must be presented to the observer.
 
 **Alert:** User gets notification of probably windshake, with link to webpage
@@ -609,7 +617,7 @@ Because much of the work is highly parallelizable, this report has separated tas
 These tasks are consider architectural in nature, and do not include the generation of needed tools that are either system wide or subsystem specific.
 Some of these tools are discussed in the `Recommended Tools`_ section.
 Lastly, the reader should recognize that there is a lot of work to do here that can only be done by a small and specific groups of individuals.
-Coordination and management of these tasks will be critical to success of commissioning. 
+Coordination and management of these tasks will be critical to success of commissioning.
 
 
 Tier 1:
@@ -667,7 +675,7 @@ It does not include subsystem specific displays such as what will be required fo
 #. Strip charts showing data quality metrics versus observing conditions.
 #. Image summary "pages" that display basic parameters, such as the PSF fundamental properties, filter used, observatory setup etc.
    Such as is done for Rubin TV.
-#. Logging tool that relates a obs-id (or other unique identifier) to all of the different areas having artifacts.  
+#. Logging tool that relates a obs-id (or other unique identifier) to all of the different areas having artifacts.
    Similarly, the logging tool should also allow items that are not directly related to an image ID.
 #. Need a tabular view that relates images to all of the metrics and available plots/data/artifacts, analogous to what is `used for HSC <https://confluence.lsstcorp.org/display/LSSTCOM/Lessons+learned+from+HSC+commissioning+and+operation+in+terms+of+On-the-fly+Analysis+Use-Case>`_.
 #. Generic webpage containing links to commonly used, but (normally) external tools.

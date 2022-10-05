@@ -203,7 +203,7 @@ Potential Paths for Implementation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The rapid analysis framework relies heavily on single frame processing, and therefore is very compatible with both the DRP and the Alert Production Pipelines.
-However, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the APP team in the development of rapid analysis.
+However, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the Alert Production team in the development of rapid analysis.
 Another important point is that Rapid Analysis only needs to run once per frame.
 Even upon a failure to produce one of the parameters, or the publishing of an incorrect result, the system will not be rerun and therefore the database containing the results does not need to support versioning or relationships to previous results.
 
@@ -233,6 +233,27 @@ Scaling the experience gained with LATISS, it is expected that a 30s image caden
 .. [#] The AOS group has already communicated that a checkerboard pattern for the focal plane, while omitting the 8 outermost sensors which are highly vignetted, is satisfactory to accomplish their analysis requirements.
 
 .. [#] The Science Verification group has indicated that full-frame on-the-fly processing is not required, so long as full frame processing occurs at the USDF within 24-hours.
+
+.. _analysis_tools_overview:
+
+analysis_tools
+^^^^^^^^^^^^^^
+
+Several `basic per-detector data quality statistics <https://confluence.lsstcorp.org/display/LSSTCOM/Science+performance+metrics+to+support+nightly+operations>`_ are generated during single-frame processing and persisted in the Butler repository.
+These basic quantities can be supplemented by more detailed data quality diagnostics produced by other Science Pipeline components.
+
+The recently released analysis_tools python package is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
+The package includes a set of analysis modules that can be run as Tasks within a data reduction pipeline, as part of a separate afterburner pipeline, or imported and executed within a standalone in a script/notebook.
+The new package more fully leverages middleware capabilities, e.g., high configurability and efficient grouping of analyses into quanta with a smaller number of output files.
+Metric values and plots are persisted alongside the input data products in the same Butler repository.
+Importantly, analysis_tools adds the ability to easily reconstitute input data products along with the configuration that was used to generate a given metric/plot to enable interactive drill-down analyses.
+The package adopts a modular design to encourage re-using code for metric calculation and visualization.
+Currently implemented analyses include metrics and plots that run on per-visit source tables, per-tract object tables, per-tract associated sources, and difference image analysis source and object tables.
+
+analysis_tools was added to main distribution of Science Pipelines (lsst_distrib) in August 2022.
+The package now includes multiple example metrics and plots for single-visit, coadd, and DIA data quality assessment.
+
+For examples, see the `tutorial notebook <https://github.com/lsst-dm/analysis_tools_examples>`_ shown at the Rubin PCW 2022.
 
 .. _Deliverable 3:
 
@@ -315,7 +336,7 @@ Deliverable 4: Required Non-Scalar Metrics
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with faro.
+  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with analysis_tools.
      Suggest a mechanism (work flow) to perform the measurement, document the finding, evaluate any trend (if applicable), then present it to the stakeholders.
 
 
@@ -326,7 +347,10 @@ Scalar fields are single value metrics, but calculated per spatial element, as d
 This charge question deals with adding a third dimension to the scalar field, then calculating and displaying this data to the user.
 For example, this could be displaying the PSF width for each detector as a function of elevation, or sky transparency as a function of time.
 As discussed above, both of these examples deal with aggregated (binned) data.
-Faro computes single valued (scalar) metrics and compares against an expected value or range (e.g. a sigma or mean), however, it can present this data in aggregated ways (such as per detector, per raft etc.).
+
+Currently, `analysis_tools`_ computes a bundle of single-valued (scalar) metrics on individual visits.
+With small modifications, the package could persist arrays of metric values (e.g., per detector or finer granularity) that could be aggregated and visualized in flexible ways by downstream tooling.
+The package already produces and persists static plots for displaying scalar fields in focal plane coordinates.
 
 After analyzing the use-cases, including hypotheticals not detailed in the report, it was decided that there is not a use-case where we are unable represent a scalar field with respect to a third axis (e.g. time, elevation etc) as a single valued metric (e.g. a mean, or standard deviation), so long as the desired aggregation is supported.
 Taking the examples discussed above, one would reduce the scalar field to a number of scalar metrics, such as the mean PSF width, or the standard deviation about that mean, as a function of elevation.
@@ -334,8 +358,9 @@ Similarly, the sky transparency could be handled by looking at the standard devi
 Reducing a scalar field to a scalar metric creates a more generalizable framework to communicate data, however, it comes a the expense of removing information.
 
 The most concerning issue with representing a field as a single metric is that it can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
-For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the faro metric.
+For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the analysis_tools metric.
 `FAFF-REQ-0059`_ has been created to capture the functionality of writing to disk both the calculated metric, and the object that was used to determine it.
+This capability is now realized by the refactored analysis_tools design.
 
 When diagnosing the data, the plots and investigations can be time consuming to code and display.
 Because in all FAFF related use-cases we are dealing with aggregated data, it would be useful to generate a generic application, most likely in Bokeh, that can present both sky and focal plane aggregated data as a function of a 3rd axis of interest.
@@ -347,7 +372,7 @@ Functionality of the tool could include:
 - Ability to flip through a 2-d data cube as a movie
 - Click on a given amp and have a plot of the value versus time, with the expectation value of the metric over plotted etc.
 - Ability to show sky maps as a function of time, and adjust the binning on-the-fly
-- Capable of mining the appropriate data given the specific faro metric (including timestamp etc)
+- Capable of mining the appropriate data given the specific analysis_tools metric (including timestamp etc)
 
 Lastly, it is recognized that the DM DRP team also needs to interact with non-aggregated data, this is outside the scope of FAFF, however, adopting a common toolset, or one that is based off the tooling being discussed here is recommended.
 
@@ -515,8 +540,7 @@ Deliverable 7: Catcher Development
 The Catcher is a name that has been assigned to a group of required functionalities, and is not necessarily the suggested name for the required tool.
 The requirements for Catcher were spelled out in the original FAFF report and will not be repeated here, however, it is essentially a service that monitors the control system for specific events and or situations, launches a detailed analysis when those events occur, then produce artifacts and/or alarms when required.
 An example of this would be if excessive jitter is seen in the telescope encoders that are possibly degrading image quality.
-In general, the Catcher is for analyses that are not associated with images, which would be done via the OCPS or the Rapid Analysis Framework.
-Also, the Catcher does not react to results published by the Rapid Analysis framework, faro is the post-processing "afterburner" that act on results from Rapid Analysis.
+In general, the Catcher is for analyses that are NOT associated with images, which would be done via the OCPS or the Rapid Analysis Framework.
 
 As part of the FAFFv2 effort different implementations beyond a CSC have been explored, which focus on the two use-cases, defined in the two following subsections.
 Other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
@@ -761,10 +785,10 @@ It is expected that this is essentially a single line of code, but will require 
 
 FAFF-REQ-0059
 ^^^^^^^^^^^^^
-**Specification:**  Observers shall be able to reproduce faro metrics and the data that went into them.
+**Specification:**  Observers shall be able to reproduce analysis_tools metrics and the data that went into them.
 
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
-One way to satisfy this requirement is to ensure the "faro metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
+One way to satisfy this requirement is to ensure that the "analysis_tools metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
 Data Access
 -----------

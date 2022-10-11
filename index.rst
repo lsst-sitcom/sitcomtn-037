@@ -29,7 +29,7 @@ Executive Summary
 
 The second First-Look Analysis and Feedback Functionality (FAFF) report details the computational tasks and interactions with resultant data products that are needed to support the full 24-hour cycle of sustained observatory operations.
 Starting from a set of use-cases derived from expected commissioning needs and experience with other observatories, we identified two major compute-intensive tasks that are required for near-realtime evaluation of data quality to support nighttime decision making.
-First, a **rapid analysis framework** is needed to run single-frame processing through source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
+First, a **rapid analysis framework** is needed to run SFP through source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
 Second, a **camera image visualization tool** is needed to rapidly display full focal plane images and zoom in to inspect pixel-level details.
 We recommend that compute resources to support both of these tasks be located on the summit so that observers have near-realtime data quality information even in the event of a network outage.
 Basic camera health diagnostics and image display capabilities will run on the Camera Diagnostic Cluster located at the summit.
@@ -38,7 +38,7 @@ Making these compute resources available for use at the summit, especially rapid
 
 Once compute resources are available at the summit, the next priorities are to  deploy the rapid analysis framework on Antu, set up the Camera Diagnostic Cluster to perform low-level camera health checks, stand up databases to record the time series of telemetry and metric values produced by rapid analysis and camera health diagnostics (e.g., Sasquatch), and develop the framework for generating alerts that metric values and reduced images are available.
 With this infrastructure in place, we will begin uses the tools together to generate, record, alert, and then display metric values.
-From this stage, we will expand capabilities to produce a variety of displays of time series of metric values and corresponding telemetry data (Chronograph), scalar fields (Bokeh apps), visualizing full focal plane images (Camera Visualization Tool), as well as generating alarms based on conditions and automatically producing more detailed artifacts (Catcher).
+From this stage, we will expand capabilities to produce a variety of displays of time series of metric values and corresponding telemetry data (Chronograf), scalar fields (Bokeh apps), visualizing full focal plane images (Camera Visualization Tool), as well as generating alarms based on conditions and automatically producing more detailed artifacts (Catcher).
 Emphasis should initially be on exercising the interfaces between these tools and gradually expanding capabilities.
 
 While drafting the FAFF report, we explored several demonstrations of the functionality described above, but implementation of an end-to-end system is beyond the scope of group.
@@ -70,7 +70,7 @@ Rapid Analysis Capability
 Most of the envisioned FAFF functionality requires data products based on both observatory telemetry and camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
 While developing use cases, we recorded the input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
 
-We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated processing of single-frame camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
+We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated SFP of camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
 The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2.
 The use cases developed for charge question 1 assume that the data products from this initial processing step are available.
 
@@ -190,7 +190,7 @@ Again, the data products for the 60 second timescales are described in the Outpu
 12-24 hours
 ^^^^^^^^^^^
 This timescale is important for more general commissioning activities and performance assessment that could impact observations taken in the next or subsequent nights.
-Over this timescale, a full DRP single frame processing pipeline needs to be run (`FAFF-REQ-0052`_).
+Over this timescale, a full SFP pipeline needs to be run (`FAFF-REQ-0052`_).
 This must include the additional values that are calculated in the Rapid Analysis Framework, which will need to be added to the SFP pipeline.
 Re-calculation of these values enables a more detailed and higher-confidence data quality evaluation to be performed, including correlation with telemetry, environmental conditions, and previous conditions and/or observations.
 It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin SV analyses, and ultimately maximize the number of human brain cycles looking at the data.
@@ -203,7 +203,7 @@ This is especially important if connections would be required to the summit inst
 Potential Paths for Implementation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The rapid analysis framework relies heavily on single frame processing, and therefore is very compatible with both the DRP and the Alert Production Pipelines.
+The rapid analysis framework relies heavily on SFP, and therefore is very compatible with both the DRP and the Alert Production Pipelines.
 However, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the Alert Production team in the development of rapid analysis.
 Another important point is that Rapid Analysis only needs to run once per frame.
 Even upon a failure to produce one of the parameters, or the publishing of an incorrect result, the system will not be rerun and therefore the database containing the results does not need to support versioning or relationships to previous results.
@@ -228,7 +228,7 @@ A list of possible focal plane configurations should be created; we have already
 It is recommended that Rubin adopt a similar architecture as it is not expected that any summit-based rapid analysis image quality metrics would require the full array.
 Especially since the camera diagnostic cluster handles the low-level health checks for all sensors, as is discussed in `Deliverable 5`_.
 
-The University of Washington group is now investigating the single frame performance enhancements.
+The University of Washington group is now investigating the SFP performance enhancements.
 Scaling the experience gained with LATISS, it is expected that a 30s image cadence is feasible and the primary speed limitation will be the I/O constraints.
 
 .. [#] The AOS group has already communicated that a checkerboard pattern for the focal plane, while omitting the 8 outermost sensors which are highly vignetted, is satisfactory to accomplish their analysis requirements.
@@ -240,7 +240,7 @@ Scaling the experience gained with LATISS, it is expected that a 30s image caden
 analysis_tools
 ^^^^^^^^^^^^^^
 
-Several `basic per-detector data quality statistics <https://confluence.lsstcorp.org/display/LSSTCOM/Science+performance+metrics+to+support+nightly+operations>`_ are generated during single-frame processing and persisted in the Butler repository.
+Several `basic per-detector data quality statistics <https://confluence.lsstcorp.org/display/LSSTCOM/Science+performance+metrics+to+support+nightly+operations>`_ are generated during SFP and persisted in the Butler repository.
 These basic quantities can be supplemented by more detailed data quality diagnostics produced by other Science Pipeline components.
 
 The recently released analysis_tools python package is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
@@ -316,7 +316,7 @@ This content is currently hosted on `a confluence page <https://confluence.lsstc
 
 Independent of the work describe above, early discussions have already yielded the following requirements on the database infrastructure, with more to come as the work progresses:
 
--  Users require a framework/method that manages the point(s) of access, analogous to the EfdClient (`FAFF-REQ-0055`_).
+-  Users require a framework/method that manages the point(s) of access, analogous to the EFD Client (`FAFF-REQ-0055`_).
    Ideally, users will have the impression all queries are going to a single database, despite what is actually happening on the back-end(s).
 - The database must be available and rapidly synced to at all major data facilities (`FAFF-REQ-0055`_), analogous to what is done for the summit EFD.
 - Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-0056`_).
@@ -392,7 +392,7 @@ Deliverable 5: Computing Resources and Infrastructure
      This includes identifying what processes require specific hardware and/or infrastructure, identifying the more generalized analyses that may benefit from a common infrastructure, and evaluating possible solutions that can ease duplication of effort.
 
 As outlined in the first FAFF report, the primary Chile-based options for `significant computing power <https://sitcomtn-025.lsst.io/#available-computing-power>`_ for commissioning are the Camera Diagnostic Cluster and Antu (often referred to as the Commissioning Cluster).
-The summit cluster (Yagan) is also available for use, but is primarily allocated for the control systems, e.g., LOVE, EFD.
+The summit cluster (Yagan) is also available for use, but is primarily allocated for the control system applications (e.g., LOVE, Sasquatch).
 
 
 Camera Diagnostic Cluster
@@ -401,7 +401,7 @@ Camera Diagnostic Cluster
 The Camera Diagnostic Cluster (CDC) is smaller in size than Antu but it has access to the pixel data a few seconds before any other compute resource.
 The Camera Diagnostic Cluster is located at the summit, meaning that even in the event of a network failure to the base or USDF, it can continue to function and support both the hardware and observers.
 For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health.
-These values will be published to DDS, and therefore the values will be archived in the EFD.
+These values will be sent to Sasquatch and recorded in the EFD.
 This allows tools such as LOVE and Bokeh Apps to be used for display when required.
 With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate, publish, or visualize plots.
 Where possible, this should be accomplished using the common toolsets (e.g., Bokeh).
@@ -574,12 +574,12 @@ This section has not yet been completed.
 Catcher Image-based Use-case:
 -----------------------------
 This use-case forces interactions with image telemetry and analysis.
-It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of single-frame-processing.
+It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of SFP.
 Presumably the calculations will be CPU intensive or they would be done for every exposure.
 
 **Trigger:** An endReadout event from a camera (e.g. LATISS)
 
-**Execution (job):** Gathers data from EFD, and calculates a metric (e.g. RMS of telescope encoders and the wind speed).
+**Execution (job):** Gathers data from the EFD, and calculates a metric (e.g. RMS of telescope encoders and the wind speed).
 If the metric reports back as True, then a command to the OCPS is sent to start a detailed analysis and persist the result.
 From that analysis, if a threshold is surpassed, an alert should be generated for the observer.
 Optional: Assembly of an object (artifact) that can be read, processed, and displayed in by a Bokeh app.
@@ -608,7 +608,7 @@ Deliverable 8: Training
 
 Because much of the required values when dealing with images are calculated by the rapid analysis framework, which utilizes pipe tasks, observers nor in-kind contributors can be expected to deliver code.
 The most obvious training regarding dealing with rapid analysis data is the querying of the database.
-However, so long as the implementation is built around an efd-client type tool, or even standard SQL queries, then no formal training is required.
+However, we expect the implementation is built around the EFD Client or analogous using SQL-like syntax, then no formal training is required.
 
 In similar vein is the usage of the CVT.
 This is not sufficiently complex to require special bootcamps.
@@ -627,7 +627,7 @@ However, upon completion, or at least the implementation of an alpha version, a 
 
 
 Useful trainings, but arguably out of FAFF scope also include trainings in preparing for an observation, writing SAL scripts, and operating the telescope via LOVE.
-Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to rapid analysis and single-frame-measurement.
+Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to rapid analysis and SFP.
 
 
 .. _Deliverable 9:
@@ -672,21 +672,21 @@ The following are in order of importance, but again are largely parallelizable b
    Initial efforts should be focused on development of interfaces and not speed.
    Capabilities of each part can be expanded incrementally.
    Early testing can store metric values in the Butler.
-- Develop database(s) in Sasquatch for archiving the Rapid Analysis Metrics
+- Create a database in Sasquatch for recording the Rapid Analysis Metrics
 - Define alert framework for the alarming metrics and for when processed images are available
 
 Once the above are completed, then the following can be performed:
 
-- Record metrics in Sasquatch database
-- Synchronize between database instances at USDF and summit
+- Record Rapid Analysis Metrics in the Summit Sasquatch instance
+- Replicate Rapid Analysis Metrics from the Summit Sasquatch instance to the USDF Sasquatch instance
 - Start issuing alerts that metrics and processed images are available
-- Create visualizations w/ Chronograph, etc.
+- Create visualizations w/ Chronograf, etc.
 
 Tier 3:
 ^^^^^^^
 
 - Development of the Catcher
-- Performing daily DRP "next morning" single-frame processing at USDF.
+- Performing daily DRP "next morning" SFP at USDF.
   This capability is not required to support realtime decisions during nighttime operations.
   There is requirement to wait until the morning to begin reductions and in fact processing the results as the data streams in is preferred.
   Note that early runs can put data into the butler and can then be expanded to a database.
@@ -747,7 +747,7 @@ Frames should not be skipped in order to catch up.
 
 FAFF-REQ-0052
 ^^^^^^^^^^^^^
-**Specification:** A full single-frame-processing shall be run on images within 24 hours of observation.
+**Specification:** A full SFP shall be run on images within 24 hours of observation.
 
 **Rationale:** Ideally this would be done in less than 12 hours, so people could look at it before the next night's observation, although this is a stretch goal.
 This data uses the most recent (best) science pipelines and produces the highest quality data products that are used for science verification tasks.
@@ -772,7 +772,7 @@ Because rapid analysis is not re-run, no versioning or relationships to other ca
 
 FAFF-REQ-0058
 ^^^^^^^^^^^^^
-**Specification:** Observers shall be able to run instances of single-frame-processing manually to support commissioning.
+**Specification:** Observers shall be able to run instances of SFP manually to support commissioning.
 
 **Rationale:** If rapid analysis fails, then users will need the capability to re-run the analyses.
 This is expected to be done either at the USDF or on the commissioning cluster.
@@ -794,7 +794,7 @@ FAFF-REQ-0054
 ^^^^^^^^^^^^^
 **Specification:** All processed data and artifacts shall be referenced from a single source, as viewed from the user.
 
-**Rationale:** Users will need to access EFD data, rapid processing data, and all generated artifacts in the same manner.
+**Rationale:** Users will need to access telemetry data, rapid processing data, and all generated artifacts in the same manner.
 They need not be pre-occupied with where the data exists and why.
 This requirement does not specify everything must be stored in a single database, although it may be a solution.
 It is also acceptable that a query returns a link to a file in the LFA.
@@ -804,14 +804,14 @@ FAFF-REQ-0055
 ^^^^^^^^^^^^^
 **Specification:** The rapid analysis processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, Base, USDF).
 
-**Rationale:** This will probably require replication of the data, analogous to the EFD.
+**Rationale:** This will probably require replication of the data, analogous to Sasquatch for replicating the EFD data.
 
 
 FAFF-REQ-0056
 ^^^^^^^^^^^^^
 **Specification:** The Scheduler must be able to access the Rapid Analysis database.
 
-**Rationale:** If the database is the EFD then this is already done.
+**Rationale:** If the database is implemented in Sasquatch a mechanism to access the data already exists.
 The Scheduler database is currently independent and needs to be merged.
 
 

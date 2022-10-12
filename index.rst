@@ -510,12 +510,25 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-.. warning::
+We have developed a plan to address the visualization requirements developed as part of FAFFv1 and further refined based on
+discussion during FAFFv2. The plans include the following major categories:
 
-   This section is not yet completed.
-..
-   This is Tony and Gregory to come up with a first crack at this.
-   Tony already has a document with questions/issues; now discussing with Gregory
+1. Requirements that can be implemented with existing/planned camera/contributed labor
+2. Requirements which require additional hardware at USDF to support
+3. Requirements which will need significant front-end work
+4. Requirements which require significant DM expertise/assistance
+
+Significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
+We have also made progress on item 4, in particular targetting an early proof-of-concept by adding the ability
+to display DM generated FITS files including some level of instrument signature removal (ISR)
+using the RubinTV generated files from AuxTel. We are developing plans to generalize this work to ComCam and the main camera,
+with the intention of using ISR files generated on the commisioning cluster (Antu -- see above).
+
+These plans are being rolled out as incremental improvements to the camera image visualization tool which is
+already being used in Chile with AuxTel and ComCam, and at SLAC for the full camera and TS8.
+
+This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190
+
 
 .. _Deliverable 7:
 
@@ -552,7 +565,7 @@ An example of such an interaction is the requirement of being able to report iss
 For this reason, it is currently envisioned that the Catcher will have to utilize the CSC architecture, but this is still being explored.
 
 While the design requirements for the Catcher are based upon the numerous FAFF use-cases, the initial design prototype is based upon the execution of two representative scenarios that broadly summarize the main functionalities.
-The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS. 
+The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
 
 Catcher Non-image Use-case
 --------------------------
@@ -845,4 +858,3 @@ During the existence of this working group, numerous items were identified as pr
 This section contains information regarding numerous issues which were identified and require attention.
 
 - Lack of definition regarding degraded mode(s)
-

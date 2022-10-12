@@ -568,7 +568,7 @@ While the design requirements for the Catcher are based upon the numerous FAFF u
 The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
 
 Example Catcher Non-image Use-case
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This use-case is designed to operate entirely independent of any image taking.
 
 **Trigger:** Telemetry (wind speed) passes threshold. Evaluated on a user-specified time interval (~1 minute).
@@ -579,13 +579,10 @@ The analysis must be persisted, a plot plot showing the extrapolation must be pr
 
 **Alert:** User gets notification of probably windshake, with link to webpage
 
-Implementation for Prototype
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This section has not yet been completed.
+**Implementation for Prototype:** This section has not yet been completed.
 
 Example Catcher Image-based Use-case
-------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This use-case forces interactions with image telemetry and analysis.
 It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of SFP.
 Presumably the calculations will be CPU intensive or they would be done for every exposure.
@@ -600,10 +597,7 @@ Optional: Assembly of an object (artifact) that can be read, processed, and disp
 **Alert:** If above threshold, user gets notification with link to artifact.
 If below threshold, artifact is archived, but no alert is issued.
 
-Implementation for Prototype
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This section has not yet been completed.
+**Implementation for Prototype:** This section has not yet been completed.
 
 
 .. _Deliverable 8:

@@ -656,13 +656,9 @@ Deliverable 9: Task Prioritization
 
      Where possible, these dates shall correspond to integration milestones.
 
-.. warning::
 
-   This section is not yet completed and only reports the current status.
-
-
-Because much of the work is highly parallelizable, this report has separated tasks into tiers and are not ranked individually.
-These tasks are consider architectural in nature and do not include the generation of tools that are system wide nor subsystem specific.
+Because much of the work is highly parallelizable, this report groups tasks into prioritization tiers; tasks are not ranked individually within a given tier.
+These tasks are considered architectural in nature and do not include the generation of tools that are system wide nor subsystem specific.
 A non-exhaustive list of these tools are discussed in the `Recommended Tools`_ section.
 Lastly, the reader should recognize that there is a lot of work to be accomplished that can only be done by small and specific groups of individuals.
 Coordination and management of these tasks will be critical to success of commissioning.

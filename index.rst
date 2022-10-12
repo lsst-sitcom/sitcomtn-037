@@ -567,7 +567,7 @@ For this reason, it is currently envisioned that the Catcher will have to utiliz
 While the design requirements for the Catcher are based upon the numerous FAFF use-cases, the initial design prototype is based upon the execution of two representative scenarios that broadly summarize the main functionalities.
 The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
 
-Catcher Non-image Use-case
+Example Catcher Non-image Use-case
 --------------------------
 This use-case is designed to operate entirely independent of any image taking.
 
@@ -584,7 +584,7 @@ Implementation for Prototype
 
 This section has not yet been completed.
 
-Catcher Image-based Use-case:
+Example Catcher Image-based Use-case:
 -----------------------------
 This use-case forces interactions with image telemetry and analysis.
 It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of SFP.

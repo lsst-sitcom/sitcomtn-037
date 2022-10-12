@@ -568,7 +568,7 @@ While the design requirements for the Catcher are based upon the numerous FAFF u
 The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
 
 Example Catcher Non-image Use-case
---------------------------
+----------------------------------
 This use-case is designed to operate entirely independent of any image taking.
 
 **Trigger:** Telemetry (wind speed) passes threshold. Evaluated on a user-specified time interval (~1 minute).
@@ -584,8 +584,8 @@ Implementation for Prototype
 
 This section has not yet been completed.
 
-Example Catcher Image-based Use-case:
------------------------------
+Example Catcher Image-based Use-case
+------------------------------------
 This use-case forces interactions with image telemetry and analysis.
 It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of SFP.
 Presumably the calculations will be CPU intensive or they would be done for every exposure.
@@ -640,7 +640,7 @@ However, upon completion, or at least the implementation of an alpha version, a 
 
 
 Useful trainings, but arguably out of FAFF scope also include trainings in preparing for an observation, writing SAL scripts, and operating the telescope via LOVE.
-Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to rapid analysis and SFP.
+Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to the Science Pipelines to support FAFF needs, for example, using the analysis_tools package to create science performance metrics and diagnostic plots, or adding additional data quality statistics to SFP.
 
 
 .. _Deliverable 9:

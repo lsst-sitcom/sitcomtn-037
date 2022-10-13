@@ -120,7 +120,7 @@ The details of how Daytime Calibration is performed is being documented in `DMTN
 In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
 This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
 Currently, if the process fails then no alert is generated automatically.
-However, as will be discussed in the following sections, a Watcher alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).
+However, as will be discussed in the following sections, a Watcher [#]_ alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).
 How the observer responds to the alert is currently being discussed.
 Presumably, this will use a parameterized notebook that will allow an observer to better understand the issue.
 Any viewing of the raw frames themselves will utilize the Camera Visualization Tool.
@@ -129,7 +129,7 @@ In the case where a more complex issue arises (e.g., a 2% increase in bad pixels
 When the calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
 Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
-
+.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying. If a rule is violated, such as a temperature going out of specification, the an alert or alarm is issued to the observer via the LOVE interface. The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged. The Watcher is not able to perform analyses and only evaluates simple conditions.
 
 .. _Deliverable 2:
 
@@ -160,6 +160,9 @@ The calculated values from Rapid Analysis are not to produce data products that 
 This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so.
 The output from the Rapid Analysis will need to go into a database.
 Details of this are database are discussed in `Deliverable 3`_.
+The output will also have to be made available to the control network such that observers can be alerted if calculated metrics are producing results that are deemed worrisome.
+The original framework to perform this duty is the Telemetry Interface, described in :ref:`LSE-72`, which is designed to feed metrics from Prompt Processing pipelines back to the summit.
+This document is out-of-date, however, either this or an analogous framework is required to perform the same purpose, such that the Watcher CSC can monitor for troubling events and alert the observer.
 
 Based on the committee's experience commissioning previous telescopes, instruments and surveys, three different timescales for data interaction were identified as being critical to successful commissioning, each of which are discussed in the following subsections.
 The data products for the rapid timescales (<30 and 60 seconds) are described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
@@ -177,7 +180,7 @@ It is also where the camera system conducts low-level measurements to determine 
 This is then used to help inform the camera health displays, as discussed in the `specific use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Camera+health+check>`_.
 Further details regarding use of the commissioning cluster are discussed in `Deliverable 5`_.
 
-The SFP pipeline is to be run on the Antu servers (the commissioning cluster), where more compute is available and the hardware consists of generic and more easily managed servers.
+The Rapid Analysis pipeline is to be run SFP on the Antu servers (the commissioning cluster), where more compute is available and the hardware consists of generic and more easily managed servers.
 There are values in the SFP pipeline that are more pertinent to have on shorter timescales, such as the PSF shape.
 These values have been identified in the `Rapid Analysis Use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ and if it is possible to output them prior to others it would help increase operational efficiency.
 
@@ -204,6 +207,8 @@ It is fully expected that this dataset will be superseded by a subsequent DRP ca
 It is not required that the full SFP processing be done in Chile, in fact, it is *preferable* to perform this processing at the USDF as many of the science verification tasks are planned to be performed there as well.
 It also ensures that a minimum number of users are connecting to Chile to perform their analysis.
 This is especially important if connections would be required to the summit instance.
+
+Lastly, the results of this analysis do not need to be forwarded back to the summit control system.
 
 Potential Paths for Implementation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -558,10 +563,11 @@ Deliverable 7: Catcher Development
 
 
 The requirements for Catcher were spelled out in the original FAFF report and will not be repeated here, however, it is essentially a service that monitors the control system for specific events and or situations, launches a detailed analysis when those events occur, then produce artifacts and/or alarms when required.
-An example of this would be if excessive jitter is seen in the telescope encoders that are possibly degrading image quality.
-In general, the Catcher is for analyses that are NOT associated with images, which would be done via the OCPS or the Rapid Analysis Framework.
-It is also not required to act on results generated by Rapid Analysis, as this would be accomplished using the `analysis_tools` package.
-Note that the Catcher is a name that has been assigned to the group of required functionalities and is not necessarily the suggested name for the required tool.
+The Catcher is a name that has been assigned to the group of required functionalities and is not necessarily the suggested name for the required tool.
+An example of a functionality requiring the use of the Catcher would be if excessive jitter is seen in the telescope encoders that are indicative of an external driving force (e.g. vibration) during a slew.
+If one was only interested in image quality, then this analysis could be calculated when an image is taken via the Rapid Analysis framework.
+There are many effects need to be acted on that are independent images, and therefore utilize the Catcher.
+Lastely, it should be noted that the Catcher is not required to act on results generated by Rapid Analysis, as this would be accomplished using the `analysis_tools` package.
 
 As part of the FAFFv2 effort, other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
 The Catcher high-level design work is being documented in `a technote <tstn-034.lsst.io>`_.

@@ -521,24 +521,36 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-We have developed a plan to address the visualization requirements developed as part of FAFFv1 and further refined based on
-discussion during FAFFv2. The plans include the following major categories:
+We have developed a plan to address the visualization requirements documented as part of the FAFFv1 report and further refined based on
+discussion during FAFFv2. This plan is based on use of the Camera Image Visualization (CVT) tool already in use for AuxTel, ComCam and Main Camera.
+
+.. figure:: images/cvt/auxtel.png
+
+   Screenshot of the CVT displaying a recent AuxTel on-sky image.
+
+.. figure:: images/cvt/comcam.png
+
+   Screenshot of the CVT displaying an emulated ComCam image.
+
+.. figure:: images/cvt/MainCamera.png
+
+   Screenshot of the CVT displaying a full focal-plane (dark) image taken during EO testing at SLAC.
+
+Future plans include work under the following major categories:
 
 1. Requirements that can be implemented with existing/planned camera/contributed labor
 2. Requirements which require additional hardware at USDF to support
 3. Requirements which will need significant front-end work
 4. Requirements which require significant DM expertise/assistance
 
-Significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
-We have also made progress on item 4, in particular targeting an early proof-of-concept by adding the ability
-to display DM generated FITS files including some level of instrument signature removal (ISR)
-using the RubinTV generated files from AuxTel. We are developing plans to generalize this work to ComCam and the main camera,
-with the intention of using ISR files generated on the commissioning cluster (Antu -- see above).
+In the last six months, significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
+Progress has also been made on item 4, in particular targeting an early proof-of-concept of displaying DM generated FITS files including with
+instrument signature removal (ISR)
+using the RubinTV generated files from AuxTel. This work is being generalize to ComCam and the main camera,
+with the intention of displaying ISR files generated on the commissioning cluster (Antu -- see above) in addition to raw images from the camera.
 
-These plans are being rolled out as incremental improvements to the camera image visualization tool which is
-already being used in Chile with AuxTel and ComCam, and at SLAC for the full camera and TS8.
-
-This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190
+This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190 which includes links to the detailed phased implmentation plans and an
+evolving set of implementation JIRAs.
 
 
 .. _Deliverable 7:

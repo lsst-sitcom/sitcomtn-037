@@ -139,9 +139,9 @@ In the case where a more complex issue arises (e.g., a 2% increase in bad pixels
 When the calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
 Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
-.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying. 
-   If a rule is violated, such as a temperature going out of specification, an alert or alarm is issued to the observer via the LOVE interface. 
-   The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged. 
+.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying.
+   If a rule is violated, such as a temperature going out of specification, an alert or alarm is issued to the observer via the LOVE interface.
+   The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged.
    The Watcher is not able to perform analyses and only evaluates simple conditions.
 
 .. _Deliverable 2:
@@ -250,7 +250,7 @@ At the moment, it is unclear if the computing infrastructure could be augmented 
 If not, then the remaining option is to reduce the number of CCDs that get processed.
 DECam encountered the same constraints and invoked a pipeline that supports different configurations that specify various patterns of sensors to reduce.
 For example, pointing tests used just the central portion of the focal plane.
-It is recommended that Rubin adopt a similar strategy, and a list of possible focal plane configurations should be created. 
+It is recommended that Rubin adopt a similar strategy, and a list of possible focal plane configurations should be created.
 The Science Verification group has indicated that full focal plane processing is not required in the rapid timescales (<30 and 60 seconds), so long as full frame processing occurs at the USDF within 24-hours.
 From the point of view of the AOS group, a checkerboard pattern for the focal plane (omitting the 8 outermost sensors which are highly vignetted), is satisfactory for their analysis requirements.
 Note that the camera diagnostic cluster will handle the low-level health checks for *all* sensors, as is discussed in `Deliverable 5`_.
@@ -456,7 +456,7 @@ State 2:
 State 3:
    Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
 
-Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit. 
+Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit.
 This is not practical for many reasons, nor is it a requirement, and is therefore not considered further.
 
 In the current baseline (Antu at the base), the observatory would at most be able to achieve State 1 in the advent of a network outage between summit and base.
@@ -527,20 +527,35 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
 We have devised a plan to address the visualization requirements developed as part of first FAFF report and further refined based on discussion during FAFF2.
-The plans include the following major categories:
+This plan is based on use of the Camera Image Visualization (CVT) tool already in use for AuxTel, ComCam and Main Camera.
+
+.. figure:: images/cvt/auxtel.png
+
+   Screenshot of the CVT displaying a recent AuxTel on-sky image.
+
+.. figure:: images/cvt/comcam.png
+
+   Screenshot of the CVT displaying an emulated ComCam image.
+
+.. figure:: images/cvt/MainCamera.png
+
+   Screenshot of the CVT displaying a full focal-plane (dark) image taken during EO testing at SLAC.
+
+Future plans include work under the following major categories:
 
 1. Requirements that can be implemented with existing/planned camera/contributed labor
 2. Requirements which demand additional hardware at USDF to support
 3. Requirements which will need significant front-end work
 4. Requirements which necessitate significant DM expertise/assistance
 
-Significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
-We have also made progress on item 4, in particular targeting an early proof-of-concept by adding the ability to display DM generated FITS files including some level of instrument signature removal (ISR) using the RubinTV generated files from AuxTel. 
-We are developing plans to generalize this work to ComCam and the main camera, with the intention of using ISR files generated on the commissioning cluster (Antu -- see above).
+In the last six months, significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
+Progress has also been made on item 4, in particular targeting an early proof-of-concept of displaying DM generated FITS files including with
+instrument signature removal (ISR)
+using the RubinTV generated files from AuxTel. This work is being generalize to ComCam and the main camera,
+with the intention of displaying ISR files generated on the commissioning cluster (Antu -- see above) in addition to raw images from the camera.
 
-These plans are being rolled out as incremental improvements to the camera image visualization tool which is already being used in Chile with AuxTel and ComCam, and at SLAC for the full camera and TS8.
-
-This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190
+This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190 which includes links to the detailed phased implmentation plans and an
+evolving set of implementation JIRAs.
 
 
 .. _Deliverable 7:

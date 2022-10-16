@@ -27,14 +27,14 @@ This document details the answers to the charge questions and other findings.
 Executive Summary
 =================
 
-The second First-Look Analysis and Feedback Functionality (FAFF) report details the computational tasks and interactions with resultant data products that are needed to support the full 24-hour cycle of sustained observatory operations.
+The second First-Look Analysis and Feedback Functionality (FAFF2) report details the computational tasks and interactions with resultant data products that are needed to support the full 24-hour cycle of sustained observatory operations.
 Starting from a set of use-cases derived from expected commissioning needs and experience with other observatories, we identified two major compute-intensive tasks that are required for near-realtime evaluation of data quality to support nighttime decision making.
 First, a **Rapid Analysis Framework** is needed to run single-frame processing (SFP) through the source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
 Second, a **camera image visualization tool** is needed to rapidly display full focal plane images and zoom in to inspect pixel-level details.
 We recommend that compute resources to support both of these tasks be located on the summit so that observers have near-realtime data quality information even in the event of a network outage.
 Basic camera health diagnostics and image display capabilities will run on the Camera Diagnostic Cluster located at the summit.
-Rapid analysis would run on the commissioning (Antu) cluster that is currently in the process of being relocated to the summit.
-Making these compute resources available for use at the summit, especially Rapid Analysis, is the highest priority recommendation of the FAFF report.
+Rapid analysis would run on the commissioning (Antu) cluster that is currently in the process of having its hardware relocated to the summit.
+Making these compute resources available for use at the summit, especially Rapid Analysis, is the highest priority recommendation of the FAFF2 report.
 
 Once compute resources are available at the summit, the next priorities are to deploy the Rapid Analysis framework, set up the Camera Diagnostic Cluster to perform low-level camera health checks, stand up databases to record the time series of telemetry together with metric values produced by Rapid Analysis and camera health diagnostics (e.g., Sasquatch), and develop the framework for generating alerts that metric values and reduced images are available.
 With this infrastructure in place, we will begin using the tools together to generate, record, alert, and then display metric values.
@@ -57,7 +57,7 @@ These are referenced throughout the report.
 This working group is focused on what is needed to perform inspection and analyses required within the first 24 hours of taking the data and is not aiming to address all visualization requirements from the `Observatory System Specifications Document <https://ls.st/lse-30>`_.
 
 Much of this report builds off the findings and recommendations of the first `FAFF report`_.
-It is expected that the readers are already familiar with the findings and recommendations.
+It is expected that the readers are already familiar with these findings and recommendations.
 
 The remainder of this report is structured into sections that address each of the charge questions individually.
 The relevant charge question has been copied into each section for ease-of-readability.
@@ -67,17 +67,23 @@ It is recommended that these issues get addressed by either a follow-on charge o
 Rapid Analysis Capability
 -------------------------
 
-Most of the envisioned FAFF functionality requires data products based on both observatory telemetry and camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
-While developing use cases, we recorded the input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
+Most of the envisioned FAFF functionality requires data products based on both observatory events and/or telemetry as well as camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
+While developing use cases, we recorded the applicable input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required generation mechanisms.
 
 We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated SFP of camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
 The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2.
 The use cases developed for charge question 1 assume that the data products from this initial processing step are available.
 
-`Prompt Processing`_ is a framework for continuously processing the stream of images coming off the telescope, for example, to execute Science Pipeline payloads for Alert Production including Solar System Processing.
-Prompt Processing runs at the USDF.
-Needs for near-realtime data quality assessment could be partially addressed by a suitable payload executed with the Prompt Processing framework at USDF, provided that results are made available to the summit.
-A dedicated Rapid Analysis capability at the summit would ensure that on-the-fly diagnostic information is available to observers even if connection to the base is lost, as discussed in the :ref:`Antu at Summit <antu_at_summit>` scenario.
+It should be noted that Rapid Analysis appears to share many of the same functionalities as what is often referred to as Prompt Processing.
+In writing this report, it was identified that the Prompt Processing terminology is used to refer to slightly different things depending on author and or person, resulting in significant confusion.
+In this report, we refer to `Prompt Processing`_ as the *framework* for continuously processing the stream of images coming off the telescope.
+This framework is used to execute a payload, such as the Science Pipeline payloads for Alert Production including Solar System Processing.
+Prompt Processing is to be run at the USDF.
+
+The needs for near-realtime data quality assessment by the commissioning team could be partially addressed by a suitable payload executed with the Prompt Processing framework at USDF, provided that results are made available to the summit.
+The payload would be the pared-down SFP, augmented with the calculation of metrics and/or values that are pertinent for observatory diagnostics, which then requires a mechanism to report those metrics back into the control system framework so observers can be alerted.
+Throughout this report, this summit-dedicated payload is referred to as Rapid Analysis, whose instantiation would ensure that on-the-fly diagnostic information is available to observers.
+Running the Rapid Analysis payload on the summit, which is shown to be feasible in :ref:`Antu at Summit <antu_at_summit>`, would increase the robustness from network outages, and may also provide a faster response depending on the desired reductions.
 
 Responses to Charge Questions and Deliverables
 ==============================================
@@ -110,12 +116,12 @@ Daytime Calibration
 
 .. warning::
 
-   This section is not yet completed.
+   This section is not yet completed and only provides a status update.
 
 
 During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how calibration data products are generated and what is expected of the observing specialist.
 The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
-The details of how Daytime Calibration is performed is being documented in `DMTN-222 <https://DMTN-222.lsst.io>`_ and will not be repeated as a new use-case.
+The details of how Daytime Calibration is performed is being documented in `DMTN-222 <https://DMTN-222.lsst.io>`_ and will not be repeated as a new FAFF use-case.
 
 In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
 This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
@@ -150,22 +156,22 @@ Deliverable 2: Rapid Analysis Calculated Metrics
 
 It is important to note that the charge question above refers to "rapid processing."
 We intentionally avoid the use of this term and have adopted the phrasing, "Rapid Analysis" instead.
-This is to avoid any potential confusion with Prompt Processing, which is a already defined set of functionalities.
+This is to avoid any potential confusion with Prompt Processing, which is a discussed previously in the `Rapid Analysis`_ section.
 
-Numerous calculations are required to evaluate camera and system health and performance on rapid timescales.
+Numerous calculations are required to evaluate both camera and control system health and performance on rapid timescales.
 The data products discussed in this section are limited to scalars and/or arrays and do *not* include diagnostic plots and/or figures (visualization use cases are discussed separately).
 The large majority of data products needed on rapid timescales are produced as part of the Science Pipelines single-frame-processing (SFP) framework.
 A small number of additional values are also required, but can be quickly derived from the SFP results.
-The calculated values from Rapid Analysis are not to produce data products that are critical to commissioning (`FAFF-REQ-0053`_), however, it is expected that observatory functionality is reduced if an outage were to occur.
-This implies that the Rapid Analysis is not required to run at the summit, although if would be preferable to do so.
+The calculated values by Rapid Analysis are not to produce data products that are fundamental to continuing observations (`FAFF-REQ-0053`_), however, it is expected that observatory functionality will be reduced if an outage were to occur.
+This implies that the Rapid Analysis payload is not required to run at the summit, although it would be preferable to do so.
 The output from the Rapid Analysis will need to go into a database.
 Details of this are database are discussed in `Deliverable 3`_.
 The output will also have to be made available to the control network such that observers can be alerted if calculated metrics are producing results that are deemed worrisome.
-The original framework to perform this duty is the Telemetry Interface, described in :ref:`LSE-72`, which is designed to feed metrics from Prompt Processing pipelines back to the summit.
-This document is out-of-date, however, either this or an analogous framework is required to perform the same purpose, such that the Watcher CSC can monitor for troubling events and alert the observer.
+The original framework to perform this duty is the Telemetry Interface, described in :ref:`LSE-72`, which is designed to feed metrics from Prompt Processing pipelines running at the USDF back to the summit.
+The :ref:`LSE-72` document is out-of-date, however, either this or an analogous framework is required to perform the same purpose, such that the Watcher CSC can monitor for troubling events and alert the observer.
 
 Based on the committee's experience commissioning previous telescopes, instruments and surveys, three different timescales for data interaction were identified as being critical to successful commissioning, each of which are discussed in the following subsections.
-The data products for the rapid timescales (<30 and 60 seconds) are described in the Outputs section of the `Rapid Analysis Use-case on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
+The data products for the rapid timescales (<30 and 60 seconds) are described in the Outputs section of the `Rapid Analysis Use-cases on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
 
 <30 seconds
 ^^^^^^^^^^^
@@ -180,7 +186,7 @@ It is also where the camera system conducts low-level measurements to determine 
 This is then used to help inform the camera health displays, as discussed in the `specific use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Camera+health+check>`_.
 Further details regarding use of the commissioning cluster are discussed in `Deliverable 5`_.
 
-The Rapid Analysis pipeline is to be run SFP on the Antu servers (the commissioning cluster), where more compute is available and the hardware consists of generic and more easily managed servers.
+The Rapid Analysis pipeline is to be run on the Antu servers (the commissioning cluster), where more compute is available and the hardware consists of generic and more easily managed servers.
 There are values in the SFP pipeline that are more pertinent to have on shorter timescales, such as the PSF shape.
 These values have been identified in the `Rapid Analysis Use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ and if it is possible to output them prior to others it would help increase operational efficiency.
 
@@ -201,19 +207,19 @@ This timescale is important for more general commissioning activities and perfor
 Over this timescale, a full SFP pipeline needs to be run (`FAFF-REQ-0052`_).
 This must include the additional values that are calculated in the Rapid Analysis Framework, which will need to be added to the SFP pipeline.
 Re-calculation of these values enables a more detailed and higher-confidence data quality evaluation to be performed, including correlation with telemetry, environmental conditions, and previous conditions and/or observations.
-It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin SV analyses, and ultimately maximize the number of human brain cycles looking at the data.
+It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin science verification analyses, and ultimately maximize the number of human brain cycles looking at the data.
 It is fully expected that this dataset will be superseded by a subsequent DRP campaign to enforce that all the data is processed in a homogeneous way with best performing configuration of the science pipelines.
 
 It is not required that the full SFP processing be done in Chile, in fact, it is *preferable* to perform this processing at the USDF as many of the science verification tasks are planned to be performed there as well.
-It also ensures that a minimum number of users are connecting to Chile to perform their analysis.
-This is especially important if connections would be required to the summit instance.
+It also ensures that a minimum number of users are connecting to Chile to perform their analyses.
+This is especially important if connections are required to the summit instance.
 
 Lastly, the results of this analysis do not need to be forwarded back to the summit control system.
 
 Potential Paths for Implementation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Rapid Analysis framework relies heavily on SFP, and therefore is a compatible payload with both the DRP and the Alert Production Pipelines.
+The Rapid Analysis payload relies heavily on SFP, and therefore is a compatible payload with both the DRP and the Alert Production Pipelines.
 The ultimate implementation decisions are outside the FAFF scope, however, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the Alert Production team in the development of Rapid Analysis.
 
 Another aspect which may impact implementation is that Rapid Analysis only needs to run once per frame.
@@ -226,7 +232,7 @@ FAFF has worked with Rubin project members to create a preliminary analysis of t
 
 
 - ~4 cores per CCD are required to perform the data processing
-- Using the full 189 CCDs also requires 756 cores which is nearly the entire Antu cluster (784 cores)
+- Using the full 189 CCDs also requires 756 cores which is nearly the entire Antu capability (784 cores)
 - To support required data Input/Output (I/O), a cluster would ideally have a small number of cores per node, then spread the data out across multiple disks.
   Antu has a high core-to-node ratio, and is therefore likely unable to run Rapid Analysis for the entire array at a ~30s cadence.
 
@@ -254,7 +260,7 @@ analysis_tools
 Several `basic per-detector data quality statistics <https://confluence.lsstcorp.org/display/LSSTCOM/Science+performance+metrics+to+support+nightly+operations>`_ are generated during SFP and persisted in the Butler repository.
 These basic quantities can be supplemented by more detailed data quality diagnostics produced by other Science Pipeline components.
 
-The recently released analysis_tools python package is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
+The recently released `analysis_tools python package <https://github.com/lsst/analysis_tools>`_ is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
 The package includes a set of analysis modules that can be run as Tasks within a data reduction pipeline, as part of a separate afterburner pipeline, or imported and executed within a standalone in a script/notebook.
 The new package more fully leverages middleware capabilities, e.g., high configurability and efficient grouping of analyses into quanta with a smaller number of output files.
 Metric values and plots are persisted alongside the input data products in the same Butler repository.
@@ -264,7 +270,7 @@ Currently implemented analyses include metrics and plots that run on per-visit s
 
 analysis_tools was added to main distribution of Science Pipelines (lsst_distrib) in August 2022.
 The package now includes multiple example metrics and plots for single-visit, coadd, and DIA data quality assessment.
-
+.. FIXME DIA
 For examples, see the `tutorial notebook <https://github.com/lsst-dm/analysis_tools_examples>`_ shown at the Rubin PCW 2022.
 
 .. _Deliverable 3:
@@ -282,10 +288,10 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
 .. warning::
 
-   This section is not yet completed.
+   This section is not yet completed and only reports the current status.
 
-Simple scalar metrics (e.g., DIMM measured seeing) are easily visualized with tools like Chronograf, and are not addressed here.
-They can be considered a subset of the scalar fields case below.
+Simple scalar metrics (e.g., DIMM measured seeing) are easily visualized with tools like Chronograf, or can be embedded in LOVE, and are not addressed here.
+They can be considered a subset of the scalar fields case just below.
 This section considers the case of scalar fields, where the same metric is plotted for multiple data origins.
 A straightforward example to consider is a metric as a function of detector and/or amplifier on the focal plane.
 
@@ -301,7 +307,7 @@ Examples include:
 
 It is useful to group into aggregated (binned) and non-aggregated (unbinned) metrics.
 
-- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified. Depending on the case, a slider could be present to adjust the scaling on-the-fly
+- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified. Depending on the case, a slider could be present to adjust the scaling on-the-fly.
 - Unbinned: Value per source (e.g. photometry measurement at each previous visit).
 
 After significant discussion, it was determined that operations on the mountain and within the first ~24 hours of taking data, it is sufficient to deal with *only* aggregated data.
@@ -403,7 +409,7 @@ Deliverable 5: Computing Resources and Infrastructure
      This includes identifying what processes require specific hardware and/or infrastructure, identifying the more generalized analyses that may benefit from a common infrastructure, and evaluating possible solutions that can ease duplication of effort.
 
 As outlined in the first FAFF report, the primary Chile-based options for `significant computing power <https://sitcomtn-025.lsst.io/#available-computing-power>`_ for commissioning are the Camera Diagnostic Cluster and Antu (often referred to as the Commissioning Cluster).
-The summit cluster (Yagan) is also available for use, but is primarily allocated for the control system applications (e.g., LOVE, Sasquatch).
+The summit cluster (Yagan) is also available for use, but is currently primarily allocated for the control system applications (e.g., LOVE, Sasquatch).
 
 
 Camera Diagnostic Cluster
@@ -521,8 +527,8 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-We have developed a plan to address the visualization requirements developed as part of FAFFv1 and further refined based on
-discussion during FAFFv2. The plans include the following major categories:
+We have developed a plan to address the visualization requirements developed as part of first FAFF report and further refined based on
+discussion during FAFF2. The plans include the following major categories:
 
 1. Requirements that can be implemented with existing/planned camera/contributed labor
 2. Requirements which require additional hardware at USDF to support
@@ -569,7 +575,7 @@ If one was only interested in image quality, then this analysis could be calcula
 There are many effects need to be acted on that are independent images, and therefore utilize the Catcher.
 Lastely, it should be noted that the Catcher is not required to act on results generated by Rapid Analysis, as this would be accomplished using the `analysis_tools` package.
 
-As part of the FAFFv2 effort, other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
+As part of the FAFF2 effort, other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
 The Catcher high-level design work is being documented in `a technote <tstn-034.lsst.io>`_.
 The addition of new tools is not being taken lightly, but was originally thought to ease the net complexity of development, usage and maintenance.
 At this time, it appears that the fundamental issue with these tools is getting reporting from those analysis back into the control system architecture.

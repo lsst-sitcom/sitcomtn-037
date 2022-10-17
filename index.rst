@@ -415,13 +415,12 @@ The summit cluster (Yagan) is also available for use, but is currently primarily
 Camera Diagnostic Cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Camera Diagnostic Cluster (CDC) is smaller in size than Antu but it has access to the pixel data a few seconds before any other compute resource.
-The Camera Diagnostic Cluster is located at the summit, meaning that even in the event of a network failure to the base or USDF, it can continue to function and support both the hardware and observers.
-For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health.
-These values will be sent to Sasquatch and recorded in the EFD.
-This allows tools such as LOVE and Bokeh Apps to be used for display when required.
+The Camera Diagnostic Cluster is smaller in size than Antu but it has access to the pixel data a few seconds before any other computing resource.
+Furthermore, because it is located at the summit, in the event of a network failure to the base or USDF it can continue to function and support both the hardware and observers.
+For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health assessments.
+The results of the calculations will be sent to Sasquatch and recorded in the EFD which allows tools such as LOVE and Bokeh Apps to be used for display when required.
 With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate, publish, or visualize plots.
-Where possible, this should be accomplished using the common toolsets (e.g., Bokeh).
+Where possible, this should be accomplished using the common toolsets (e.g., LOVE, Bokeh, Plot Visuailzer etc).
 
 The Camera Diagnostic Cluster will use a simplified set of tools to perform rudimentary on-the-fly calculations, for example, means and standard deviations of overscan regions.
 These analyses will be developed and managed by the camera team.
@@ -457,11 +456,11 @@ Maintaining State 3 in the event of a network outage means moving all Alert Proc
 This is not practical for many reasons, nor is it a requirement, and is therefore not discussed further.
 
 In the event of a network failure between summit and base, the observatory would at most be able to achieve State 1.
-Because no Rapid Analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be performed, and (potentially) certain inputs to the scheduler may not arrive.
+Because no Rapid Analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be run, and (potentially) certain inputs to the Scheduler may not arrive.
 
-If we consider that the camera diagnostic cluster could perform some of the tasks considered in State 2, for example, a subset of Rapid Analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+If we consider that the Camera Diagnostic Cluster could perform some of the tasks considered in State 2, for example, a subset of Rapid Analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
 
-- DM tooling must be installed and maintained on the diagnostic cluster
+- DM tooling must be installed and maintained on the Camera Diagnostic Cluster
 - Rapid-analysis-critical must be developed and deployed, with the ability to only focus on a subset of detectors, and/or metrics
 - The database containing the output must be hosted on the summit, then replicated outwards
 
@@ -500,17 +499,13 @@ Discussions are currently ongoing with Richard Dubois to better define the neede
 
 Therefore, FAFF ultimately recommends moving the Antu servers to the summit; the technical details are currently being captured in `ITTN-061 <https://ittn-061.lsst.io>`_.
 This will add functionality in the case of an outage and decreases the workload of cluster management and maintenance by co-locating the hardware and removing one set of services.
-If the compute load is insufficient to perform all Rapid Analysis tasks, then we can either augment the number of machines, or reduce the number of detectors that are processed in the pipeline.
+If the compute load is insufficient to perform all Rapid Analysis tasks, then the project can either augment the number of machines, or reduce the number of detectors that are processed in the pipeline.
 In discussions with both the AOS and Science Verification teams, using ~50% of the detector has not been met with any resistance.
 If full-focal plane wavefront sensing requires more compute, we recommend moving that processing to the USDF and developing an automatic trigger mechanism.
 In the case where the link to USDF is lost, it will be required to accept the additional overhead associated with performing the calculation on fewer machines (the Antu servers) [#]_, which is the originally baselined plan.
 
 
 .. [#] A single full focal plane analysis currently takes ~3 min with 2 cores per chip. Note that Rapid Analysis does not need to be run on these images, thus saving compute time, but it is important to make sure the processes are setup such that they do not compete.
-
-.. RA triggers same as PP.
-.. Working on getting data processed via SFP.
-.. AOS trigger could be by via OCPS but could be different.
 
 
 .. _Deliverable 6:
@@ -572,15 +567,15 @@ The requirements for Catcher were spelled out in the original FAFF report and wi
 The Catcher is a name that has been assigned to the group of required functionalities and is not necessarily the suggested name for the required tool.
 An example of a functionality requiring the use of the Catcher would be if excessive jitter is seen in the telescope encoders that are indicative of an external driving force (e.g. vibration) during a slew.
 If one was only interested in image quality, then this analysis could be calculated when an image is taken via the Rapid Analysis framework.
-There are many effects need to be acted on that are independent images, and therefore utilize the Catcher.
-Lastely, it should be noted that the Catcher is not required to act on results generated by Rapid Analysis, as this would be accomplished using the `analysis_tools` package.
+However, there are many effects need to be acted on that are independent images, and therefore utilize the Catcher.
+Lastly, it should be noted that the Catcher is not required to act on results generated by Rapid Analysis, as this would be accomplished using the `analysis_tools` package.
 
 As part of the FAFF2 effort, other architectures besides a CSC have been explored, specifically using Flux scripts and the InfluxDB architecture, which is designed to do perform analogous use-cases.
 The Catcher high-level design work is being documented in `a technote <tstn-034.lsst.io>`_.
 The addition of new tools is not being taken lightly, but was originally thought to ease the net complexity of development, usage and maintenance.
 At this time, it appears that the fundamental issue with these tools is getting reporting from those analysis back into the control system architecture.
 An example of such an interaction is the requirement of being able to report issues to observers via LOVE.
-For this reason, it is currently envisioned that the Catcher will have to utilize the CSC architecture, but this is still being explored.
+For this reason, it is currently envisioned that the Catcher will have to utilize the CSC architecture and perform data reduction with DM tools using the OCPS, but this is still being explored.
 
 While the design requirements for the Catcher are based upon the numerous FAFF use-cases, the initial design prototype is based upon the execution of two representative scenarios that broadly summarize the main functionalities.
 The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
@@ -595,7 +590,7 @@ This use-case is designed to operate entirely independent of any image taking.
 If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer.
 The analysis must be persisted, a plot plot showing the extrapolation must be presented to the observer.
 
-**Alert:** User gets notification of probably windshake, with link to webpage
+**Alert:** User gets notification of probable windshake, with link to webpage
 
 **Implementation for Prototype:** This section has not yet been completed.
 
@@ -631,9 +626,9 @@ Deliverable 8: Training
      These bootcamps will be used as the initial training materials.
      It is expected that In-kind contributors and/or other delegates can augment the content, provide improvements, and eventually take over some of the training.
 
-Because much of the required values when dealing with images are calculated by the Rapid Analysis framework, which utilizes pipe tasks, observers nor in-kind contributors can be expected to deliver code.
+Because much of the required values when dealing with images are calculated by the Rapid Analysis payload, which utilizes pipe tasks, observers nor in-kind contributors can be expected to deliver code.
 The most obvious training regarding dealing with Rapid Analysis data is the querying of the database.
-However, we expect the implementation is built around the EFD Client or analogous using SQL-like syntax, then no formal training is required.
+However, if the implementation will be built around the EFD Client or analog that uses SQL-like syntax, then no formal training is required.
 
 In similar vein is the usage of the CVT.
 This is not sufficiently complex to require special bootcamps.
@@ -651,8 +646,9 @@ However, upon completion, or at least the implementation of an alpha version, a 
    - How to alert a user, specifically an operator, that an artifact is available for viewing (with a level of urgency attached)
 
 
-Useful trainings, but arguably out of FAFF scope also include trainings in preparing for an observation, writing SAL scripts, and operating the telescope via LOVE.
-Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to the Science Pipelines to support FAFF needs, for example, using the analysis_tools package to create science performance metrics and diagnostic plots, or adding additional data quality statistics to SFP.
+Useful trainings, but arguably out of FAFF scope, include: preparing for an observation, writing SAL scripts, and operating the observatory via LOVE.
+Also out of scope, but useful to commissioning personnel, are the writing of modules and/or pieces of code that can be added to the Science Pipelines to support FAFF needs.
+For example, using the analysis_tools package to create science performance metrics and diagnostic plots, or adding additional data quality statistics to SFP.
 
 
 .. _Deliverable 9:
@@ -671,7 +667,7 @@ Deliverable 9: Task Prioritization
 
 Because much of the work is highly parallelizable, this report groups tasks into prioritization tiers; tasks are not ranked individually within a given tier.
 These tasks are focused on developing high-level architectures.
-The list does not include all the specific displays and/or toolsthat are required for each individual system (e.g. the AOS GUIs).
+The list does not include all the specific displays and/or tools that are required for each individual system (e.g. the AOS GUIs).
 However, a non-exhaustive list of these tools are discussed in the `Recommended Tools`_ section.
 Lastly, the reader should recognize that there is a lot of work to be accomplished that can only be done by small and specific groups of individuals.
 Coordination and management of these tasks will be critical to success of commissioning.
@@ -681,8 +677,7 @@ Tier 1:
 ^^^^^^^
 
 - Complete transition of the Antu servers to the summit.
-  This task is required before many of the Tier 2 tasks can make significant process.
-  This is because because the Rapid Analysis framework will run on this cluster.
+  This task is required before many of the Tier 2 tasks can make significant process because the Rapid Analysis payload and supporting framework will run on this cluster.
 
 Tier 2:
 ^^^^^^^
@@ -762,7 +757,7 @@ Processing
 
 FAFF-REQ-0051
 ^^^^^^^^^^^^^
-**Specification:** The Rapid Analysis of images shall maintain the same cadence as the telescope visits.
+**Specification:** The Rapid Analysis of images shall maintain or exceed the same cadence as the standard 30s telescope visits.
 
 **Rationale:** The data reduction and analysis must not fall behind the data being taken.
 Frames should not be skipped in order to catch up.

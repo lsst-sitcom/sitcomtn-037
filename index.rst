@@ -269,8 +269,7 @@ The package adopts a modular design to encourage re-using code for metric calcul
 Currently implemented analyses include metrics and plots that run on per-visit source tables, per-tract object tables, per-tract associated sources, and difference image analysis source and object tables.
 
 analysis_tools was added to main distribution of Science Pipelines (lsst_distrib) in August 2022.
-The package now includes multiple example metrics and plots for single-visit, coadd, and DIA data quality assessment.
-.. FIXME DIA
+The package now includes multiple example metrics and plots for single-visit, deep coadd, and different image analysis (DIA) data quality assessment.
 For examples, see the `tutorial notebook <https://github.com/lsst-dm/analysis_tools_examples>`_ shown at the Rubin PCW 2022.
 
 .. _Deliverable 3:

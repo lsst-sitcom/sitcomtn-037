@@ -419,7 +419,7 @@ Furthermore, because it is located at the summit, in the event of a network fail
 For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health assessments.
 The results of the calculations will be sent to Sasquatch and recorded in the EFD which allows tools such as LOVE and Bokeh Apps to be used for display when required.
 With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate, publish, or visualize plots.
-Where possible, this should be accomplished using the common toolsets (e.g., LOVE, Bokeh, Plot Visuailzer etc).
+Where possible, this should be accomplished using the common toolsets (e.g., LOVE, Bokeh, Plot Navigator).
 
 The Camera Diagnostic Cluster will use a simplified set of tools to perform rudimentary on-the-fly calculations, for example, means and standard deviations of overscan regions.
 These analyses will be developed and managed by the camera team.

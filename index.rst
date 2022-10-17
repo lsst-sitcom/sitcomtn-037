@@ -435,13 +435,7 @@ Rapid Analysis would be run on Antu, where there is significantly more computing
 This has several implications for what happens in the event of a communications outage between summit and base, as discussed in `Deliverable 2`_.
 Another way to frame the issue is to consider what is critical to be computed in the event of a connection loss to the Base Facility.
 Unfortunately, the definition of what needs to be calculated on the summit to support operations is closely tied to the concept of "Degraded mode," which is currently not sufficiently defined to draw a single conclusion.
-Therefore, we consider here three separate states of functionality for the observatory in the event of an outage:
-
-1. The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.
-   Image display is still occurring because the CVT is hosted on the summit-based diagnostic cluster and observers can visually inspect raw images and images with minimal instrument signature removal.
-   Low-level calculations and analysis will go into the camera database and the EFD.
-2. As above, with the addition of the Rapid Analysis framework to support operations, scheduler input, QA analyses etc.
-3. Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
+Therefore, we consider here three separate states of functionality for the observatory in the event of an outage as defined below.
 
 State 1:
    The observatory is able to safely continue standard survey operations with minimal functionality to evaluate science data quality in real time.

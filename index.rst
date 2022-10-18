@@ -581,7 +581,7 @@ This use-case is designed to operate entirely independent of any image taking.
 
 **Execution (job):** Gathers last ~30 minutes of wind data, fits and extrapolates into the future.
 If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer.
-The analysis must be persisted, a plot plot showing the extrapolation must be presented to the observer.
+The analysis must be persisted, a plot showing the extrapolation must be presented to the observer.
 
 **Alert:** User gets notification of probable windshake, with link to webpage
 

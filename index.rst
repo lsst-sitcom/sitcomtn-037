@@ -81,12 +81,12 @@ The use cases developed for charge question 1 assume that the data products from
 It should be noted that Rapid Analysis appears to share many of the same functionalities as what is often referred to as Prompt Processing.
 In writing this report, it was identified that the Prompt Processing terminology is used to refer to slightly different things depending on author and or person, resulting in significant confusion.
 In this report, we refer to `Prompt Processing`_ as the *framework* for continuously processing the stream of images coming off the telescope.
-This framework is used to execute a payload, such as the Science Pipeline payloads for Alert Production including Solar System Processing.
+This framework is used to execute a `payload <https://pipelines.lsst.io/modules/lsst.ctrl.bps/quickstart.html#defining-a-submission>`_, such as the Science Pipeline payloads for Alert Production including Solar System Processing.
 Prompt Processing is to be run at the United States Data Facility (USDF).
 
 The needs for near-realtime data quality assessment by the commissioning team could be partially addressed by a suitable payload executed with the Prompt Processing framework at USDF, provided that results are made available to the summit.
 The payload would be the pared-down SFP, augmented with the calculation of metrics and/or values that are pertinent for observatory diagnostics, which then requires a mechanism to report those metrics back into the control system framework such that potential alerts signaling abnormal data can be generated for observers.
-Throughout this report, this summit-dedicated payload is referred to as Rapid Analysis, whose instantiation would ensure that on-the-fly diagnostic information is available to observers.
+Throughout this report, this summit-dedicated data processing is referred to as the "Rapid Analysis payload" or sometimes just "Rapid Analysis," whose instantiation would ensure that on-the-fly diagnostic information is available to observers.
 Running the Rapid Analysis payload on the summit, which is shown to be feasible in :ref:`Antu at Summit <antu_at_summit>`, would increase robustness against network outages, and may also provide a faster response depending on the desired reductions.
 
 Responses to Charge Questions and Deliverables
@@ -127,7 +127,7 @@ During the course of the working group, the example of daytime calibration was r
 The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
 The details of how Daytime Calibration is performed is being documented in `DMTN-222 <https://DMTN-222.lsst.io>`_ and will not be repeated as a new FAFF use-case.
 
-In short, a SAL script is launched by the observer to acquire a daytime set of calibrations.
+In short, a SAL Script is launched by the observer to acquire a daytime set of calibrations.
 This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
 Currently, if the process fails then no alert is generated automatically.
 However, as will be discussed in the following sections, a Watcher [#]_ alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).

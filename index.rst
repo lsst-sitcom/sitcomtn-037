@@ -516,7 +516,8 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
 We have developed a plan to address the visualization requirements developed as part of first FAFF report and further refined based on
-discussion during FAFF2. The plans include the following major categories:
+discussion during FAFF2. 
+The plans include the following major categories:
 
 1. Requirements that can be implemented with existing/planned camera/contributed labor
 2. Requirements which require additional hardware at USDF to support
@@ -524,13 +525,10 @@ discussion during FAFF2. The plans include the following major categories:
 4. Requirements which require significant DM expertise/assistance
 
 Significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
-We have also made progress on item 4, in particular targeting an early proof-of-concept by adding the ability
-to display DM generated FITS files including some level of instrument signature removal (ISR)
-using the RubinTV generated files from AuxTel. We are developing plans to generalize this work to ComCam and the main camera,
-with the intention of using ISR files generated on the commissioning cluster (Antu -- see above).
+We have also made progress on item 4, in particular targeting an early proof-of-concept by adding the ability to display DM generated FITS files including some level of instrument signature removal (ISR) using the RubinTV generated files from AuxTel. 
+We are developing plans to generalize this work to ComCam and the main camera, with the intention of using ISR files generated on the commissioning cluster (Antu -- see above).
 
-These plans are being rolled out as incremental improvements to the camera image visualization tool which is
-already being used in Chile with AuxTel and ComCam, and at SLAC for the full camera and TS8.
+These plans are being rolled out as incremental improvements to the camera image visualization tool which is already being used in Chile with AuxTel and ComCam, and at SLAC for the full camera and TS8.
 
 This work is being further tracked under: https://jira.lsstcorp.org/browse/SITCOM-190
 

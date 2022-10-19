@@ -11,6 +11,7 @@
 .. _Prompt Processing: https://dmtn-219.lsst.io/
 .. _charge: https://sitcomtn-030.lsst.io/
 .. _FAFF report: https://sitcomtn-025.lsst.io/
+.. _Sasquatch: https://sqr-068.lsst.io/
 
 Abstract
 ========
@@ -81,7 +82,7 @@ It should be noted that Rapid Analysis appears to share many of the same functio
 In writing this report, it was identified that the Prompt Processing terminology is used to refer to slightly different things depending on author and or person, resulting in significant confusion.
 In this report, we refer to `Prompt Processing`_ as the *framework* for continuously processing the stream of images coming off the telescope.
 This framework is used to execute a payload, such as the Science Pipeline payloads for Alert Production including Solar System Processing.
-Prompt Processing is to be run at the USDF.
+Prompt Processing is to be run at the United States Data Facility (USDF).
 
 The needs for near-realtime data quality assessment by the commissioning team could be partially addressed by a suitable payload executed with the Prompt Processing framework at USDF, provided that results are made available to the summit.
 The payload would be the pared-down SFP, augmented with the calculation of metrics and/or values that are pertinent for observatory diagnostics, which then requires a mechanism to report those metrics back into the control system framework such that potential alerts signaling abnormal data can be generated for observers.
@@ -138,7 +139,10 @@ In the case where a more complex issue arises (e.g., a 2% increase in bad pixels
 When the calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
 Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
-.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying. If a rule is violated, such as a temperature going out of specification, the an alert or alarm is issued to the observer via the LOVE interface. The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged. The Watcher is not able to perform analyses and only evaluates simple conditions.
+.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying. 
+   If a rule is violated, such as a temperature going out of specification, an alert or alarm is issued to the observer via the LOVE interface. 
+   The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged. 
+   The Watcher is not able to perform analyses and only evaluates simple conditions.
 
 .. _Deliverable 2:
 
@@ -159,19 +163,21 @@ Deliverable 2: Rapid Analysis Calculated Metrics
 
 It is important to note that the charge question above refers to "rapid processing."
 We intentionally avoid the use of this term and have adopted the phrasing, "Rapid Analysis" instead.
-This is to avoid any potential confusion with Prompt Processing, which is a discussed previously in the `Rapid Analysis`_ section.
+This is to avoid any potential confusion with Prompt Processing, which is discussed above in the `Rapid Analysis`_ section.
 
 Numerous calculations are required to evaluate both camera and control system health and performance on rapid timescales.
 The data products discussed in this section are limited to scalars and/or arrays and do *not* include diagnostic plots and/or figures (visualization use cases are discussed separately).
-The large majority of data products needed on rapid timescales are produced as part of the Science Pipelines single-frame-processing (SFP) framework.
+The majority of data products needed on rapid timescales are produced as part of the Science Pipelines single-frame-processing (SFP) framework.
 A small number of additional values are also required, but can be quickly derived from the SFP results.
-The calculated values by Rapid Analysis are not to produce data products that are fundamental to continuing observations (`FAFF-REQ-0053`_), however, it is expected that observatory functionality will be reduced if an outage were to occur.
+The values calculated by Rapid Analysis are not fundamental to continuing observations (`FAFF-REQ-0053`_), however, it is expected that observatory functionality will be reduced if an outage were to occur.
 This implies that the Rapid Analysis payload is not required to run at the summit, although it would be preferable to do so.
 The output from the Rapid Analysis will need to go into a database.
-Details of this are database are discussed in `Deliverable 3`_.
-The output will also have to be made available to the control network such that observers can be alerted if calculated metrics are producing results that are deemed worrisome.
+Details of this database are discussed in `Deliverable 3`_.
+The output will also have to be made available to the control network such that observers can be alerted if calculated metrics are producing results that exceed the range of nominal values.
 The original framework to perform this duty is the Telemetry Interface, described in `LSE-72`_, which is designed to feed metrics from Prompt Processing pipelines running at the USDF back to the summit.
-The `LSE-72`_ document is out-of-date, however, either this or an analogous framework is required to perform the same purpose, such that the Watcher CSC can monitor for troubling events and alert the observer.
+The `LSE-72`_ document is out-of-date, however, either this or an analogous framework is required to perform the same purpose.
+`Sasquatch`_ is implementing such functionality, however, it is important that the Watcher CSC can monitor and alert the observer of troubling events.
+This means that the Watcher must be augmented to analyze EFD data, or the data itself must get passed into the control network such that the Watcher can react to it.
 
 Based on the committee's experience commissioning previous telescopes, instruments and surveys, three different timescales for data interaction were identified as being critical to successful commissioning, each of which are discussed in the following subsections.
 The data products for the rapid timescales (<30 and 60 seconds) are described in the Outputs section of the `Rapid Analysis Use-cases on confluence <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_.
@@ -187,7 +193,7 @@ The camera commissioning cluster is unique as it is the first significant comput
 This is where the Camera Visualization Tool (CVT) is to be run such that users can see the images with the lowest possible latency.
 It is also where the camera system conducts low-level measurements to determine camera health, such as median and standard deviation of the overscan regions.
 This is then used to help inform the camera health displays, as discussed in the `specific use-case <https://confluence.lsstcorp.org/display/LSSTCOM/Camera+health+check>`_.
-Further details regarding use of the commissioning cluster are discussed in `Deliverable 5`_.
+Further details regarding use of the commissioning cluster and development of the CVT are discussed in `Deliverable 5`_ and `Deliverable 6`_ respectively.
 
 The Rapid Analysis pipeline is to be run on the Antu servers (the commissioning cluster), where more compute is available and the hardware consists of generic and more easily managed servers.
 There are values in the SFP pipeline that are more pertinent to have on shorter timescales, such as the PSF shape.
@@ -244,16 +250,13 @@ At the moment, it is unclear if the computing infrastructure could be augmented 
 If not, then the remaining option is to reduce the number of CCDs that get processed.
 DECam encountered the same constraints and invoked a pipeline that supports different configurations that specify various patterns of sensors to reduce.
 For example, pointing tests used just the central portion of the focal plane.
-A list of possible focal plane configurations should be created; we have already reached out to the AOS[#]_ and Science Verification[#]_ groups for suggestions.
-It is recommended that Rubin adopt a similar architecture as it is not expected that any summit-based Rapid Analysis image quality metrics would require the full array.
-Especially since the camera diagnostic cluster handles the low-level health checks for all sensors, as is discussed in `Deliverable 5`_.
+It is recommended that Rubin adopt a similar strategy, and a list of possible focal plane configurations should be created. 
+The Science Verification group has indicated that full focal plane processing is not required in the rapid timescales (<30 and 60 seconds), so long as full frame processing occurs at the USDF within 24-hours.
+From the point of view of the AOS group, a checkerboard pattern for the focal plane (omitting the 8 outermost sensors which are highly vignetted), is satisfactory for their analysis requirements.
+Note that the camera diagnostic cluster will handle the low-level health checks for *all* sensors, as is discussed in `Deliverable 5`_.
 
 The University of Washington group is now investigating the SFP performance enhancements.
 Scaling the experience gained with LATISS, it is expected that a 30s image cadence is feasible and the primary speed limitation will be the I/O constraints.
-
-.. [#] The AOS group has already communicated that a checkerboard pattern for the focal plane, while omitting the 8 outermost sensors which are highly vignetted, is satisfactory to accomplish their analysis requirements.
-
-.. [#] The Science Verification group has indicated that full-frame on-the-fly processing is not required, so long as full frame processing occurs at the USDF within 24-hours.
 
 .. _analysis_tools_overview:
 
@@ -264,8 +267,9 @@ Several `basic per-detector data quality statistics <https://confluence.lsstcorp
 These basic quantities can be supplemented by more detailed data quality diagnostics produced by other Science Pipeline components.
 
 The recently released `analysis_tools python package <https://github.com/lsst/analysis_tools>`_ is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
-The package includes a set of analysis modules that can be run as Tasks within a data reduction pipeline, as part of a separate afterburner pipeline, or imported and executed within a standalone in a script/notebook.
-The new package more fully leverages middleware capabilities, e.g., high configurability and efficient grouping of analyses into quanta with a smaller number of output files.
+The package includes a set of analysis modules that can be run as Tasks within a data reduction pipeline, as part of a separate afterburner pipeline, or imported and executed standalone, in a script/notebook.
+
+The new package more fully leverages DM-middleware capabilities, e.g., high configurability and efficient grouping of analyses into quanta with a smaller number of output files.
 Metric values and plots are persisted alongside the input data products in the same Butler repository.
 Importantly, analysis_tools adds the ability to easily reconstitute input data products along with the configuration that was used to generate a given metric/plot to enable interactive drill-down analyses.
 The package adopts a modular design to encourage re-using code for metric calculation and visualization.
@@ -328,7 +332,7 @@ Data from the observatory will come from numerous sources and efforts should be 
 Whereas much of the data coming off the summit is time based and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
 The implementation of various project databases is currently being discussed and documented in a number of tech notes[*]_ however, the capabilities and functionalities required by the commissioning team has not been explicitly described.
 
-.. [*] For further details, consult the following technotes, which are in various states of being written: `Sasquatch <https://sqr-058.lsst.io>`_, the `Butler <https://dmtn-204.lsst.io>`,  database support for `campaigns <https://dmtn-220.lsst.io/>`_, as well as the `consolidated database <https://dmtn-227.lsst.io/>`_.
+.. [*] For further details, consult the following technotes, which are in various states of being written: `Sasquatch`_, the `Butler <https://dmtn-204.lsst.io>`,  database support for `campaigns <https://dmtn-220.lsst.io/>`_, as well as the `consolidated database <https://dmtn-227.lsst.io/>`_.
 
 FAFF is assembling a series of use-cases, specifically descriptions of database queries, that will identify the commissioning-specific functionalities required by the project databases.
 This content is currently hosted on `a confluence page <https://confluence.lsstcorp.org/display/LSSTCOM/Use+cases+for+commissioning+databases>`_, but the pertinent content will be merged to this report and/or the use-cases described as part of `Deliverable 1`_.

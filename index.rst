@@ -527,7 +527,7 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
 We have devised a plan to address the visualization requirements developed as part of first FAFF report and further refined based on discussion during FAFF2.
-This plan is based on use of the Camera Image Visualization (CVT) tool already in use for AuxTel, ComCam and Main Camera.
+This plan is based on use of the Camera Image Visualization (CVT) tool already in use for AuxTel, ComCam, and the Main Camera.
 
 .. figure:: images/cvt/auxtel.png
 

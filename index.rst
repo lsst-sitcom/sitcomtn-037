@@ -296,10 +296,10 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
    This section is not yet completed and only reports the current status.
 
-Simple scalar metrics (e.g., DIMM measured seeing) are easily visualized with tools like Chronograf, or can be embedded in LOVE, and are not addressed here.
-They can be considered a subset of the scalar fields case just below.
-This section considers the case of scalar fields, where the same metric is plotted for multiple data origins.
+
+This section considers the case of scalar fields, where the same metric is computed and visualized on multiple spatial scales.
 A straightforward example to consider is a metric as a function of detector and/or amplifier on the focal plane.
+Simple scalar metrics (e.g., DIMM measured seeing) are a subset of scalar fields and easily visualized with tools like Chronograf, or can be embedded in LOVE, and are not addressed here.
 
 The use of scalar fields will be displayed using various visualization tools and/or frameworks.
 Examples include:
@@ -313,7 +313,8 @@ Examples include:
 
 It is useful to group into aggregated (binned) and non-aggregated (unbinned) metrics.
 
-- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified. Depending on the case, a slider could be present to adjust the scaling on-the-fly.
+- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified.
+  Depending on the case, a slider could be present to adjust the scaling on-the-fly.
 - Unbinned: Value per source (e.g. photometry measurement at each previous visit).
 
 After significant discussion, it was determined that operations on the mountain and within the first ~24 hours of taking data, it is sufficient to deal with *only* aggregated data.
@@ -328,7 +329,9 @@ Databases
 
    This section is not yet completed and only reports the current status.
 
-Data from the observatory will come from numerous sources and efforts should be made to minimize the number of individual databases; both for maintenance and ease-of-use reasons.
+Data from the observatory will come from numerous sources.
+To minimize maintenance and facilitate ease-of-use, efforts should be made to minimize the number of active databases.
+Suggestions to create new individualized databases should be resisted unless no existing database can be utilized.
 Whereas much of the data coming off the summit is time based and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
 The implementation of various project databases is currently being discussed and documented in a number of tech notes[*]_ however, the capabilities and functionalities required by the commissioning team has not been explicitly described.
 
@@ -375,10 +378,11 @@ Currently, `analysis_tools`_ computes a bundle of single-valued (scalar) metrics
 With small modifications, the package could persist arrays of metric values (e.g., per detector or finer granularity) that could be aggregated and visualized in flexible ways by downstream tooling.
 The package already produces and persists static plots for displaying scalar fields in focal plane coordinates.
 
-After analyzing the use-cases, including hypotheticals not detailed in the report, it was decided that there is not a use-case where we are unable represent a scalar field with respect to a third axis (e.g. time, elevation etc) as a single valued metric (e.g. a mean, or standard deviation), so long as the desired aggregation is supported.
+After analyzing the use-cases, including hypotheticals not detailed in the report, it was decided that there is not a use-case where we the trending of scalar fields is truly required.
+In all instances, the scalar field could be represented as a single valued metric (e.g. a mean, or standard deviation) with respect to a third axis (e.g. time, elevation etc), so long as the desired aggregation is supported.
 Taking the examples discussed above, one would reduce the scalar field to a number of scalar metrics, such as the mean PSF width, or the standard deviation about that mean, as a function of elevation.
 Similarly, the sky transparency could be handled by looking at the standard deviation compared to a 2-d map of a photometric night.
-Reducing a scalar field to a scalar metric creates a more generalizable framework to communicate data, however, it comes a the expense of removing information.
+Reducing a scalar field to a scalar metric creates a more generalizable framework to communicate data, however, it comes at the expense of removing information.
 
 The most concerning issue with representing a field as a single metric is that it can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
 For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the analysis_tools metric.
@@ -426,15 +430,15 @@ Furthermore, because it is located at the summit, in the event of a network fail
 For these reasons, we recommend that the Diagnostic Cluster be used to run the CVT and perform basic calculations to support camera health assessments.
 The results of the calculations will be sent to Sasquatch and recorded in the EFD which allows tools such as LOVE and Bokeh Apps to be used for display when required.
 With the exception of displays developed and used by the CCS team to support camera operations, we recommend that the Camera Diagnostic Cluster not be used to generate, publish, or visualize plots.
-Where possible, this should be accomplished using the common toolsets (e.g., LOVE, Bokeh, Plot Navigator).
+Where possible, this should be accomplished using the common toolsets (e.g., LOVE, Chronograph, or a Bokeh App).
 
 The Camera Diagnostic Cluster will use a simplified set of tools to perform rudimentary on-the-fly calculations, for example, means and standard deviations of overscan regions.
 These analyses will be developed and managed by the camera team.
-Using the DM tool set, although useful, would add significant complexity, specifically in regards to maintenance and updates, that would go largely unused if the desire was only to replace the values being calculated now during EO testing.
+Using the DM tool set, although useful, would add significant complexity, specifically in regards to maintenance and updates, that would go largely unused if the desire was only to replace the values being calculated now during electro-optical testing.
 Instead, those more sophisticated types of calculations will be run using the DM tool set as part of the Rapid Analysis Pipeline.
 
-Antu at the Base (Current Baseline)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Commissioning Cluster: Antu at the Base (Current Baseline)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The original project plan has Antu residing at the base in La Serena, acting as a general compute facility to support commissioning and summit personnel.
 Rapid Analysis would be run on Antu, where there is significantly more computing power and storage than the Camera Diagnostic Cluster.
@@ -452,27 +456,27 @@ State 2:
 State 3:
    Full operations, including all processing that is planned to be performed at the USDF, such as Alert Processing, with transfer of diagnostic information back to the summit.
 
-Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit.
-This is not practical for many reasons, nor is it a requirement, and is therefore not discussed further.
+Maintaining State 3 in the event of a network outage means moving all Alert Processing infrastructure to the summit. 
+This is not practical for many reasons, nor is it a requirement, and is therefore not considered further.
 
-In the event of a network failure between summit and base, the observatory would at most be able to achieve State 1.
+In the current baseline (Antu at the base), the observatory would at most be able to achieve State 1 in the advent of a network outage between summit and base.
 Because no Rapid Analysis support will be available from the base, any (non-AOS) image-based calculations will not be performed and therefore it is possible that certain engineering tests will not be able to be run, and (potentially) certain inputs to the Scheduler may not arrive.
 
-If we consider that the Camera Diagnostic Cluster could perform some of the tasks considered in State 2, for example, a subset of Rapid Analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a very significant increase in functionality.
+If we consider that the Camera Diagnostic Cluster could perform some of the tasks considered in State 2, for example, a subset of Rapid Analysis is required (which we refer to as rapid-analysis-critical) to remain functional in the event of an outage, this requires a significant increase in functionality.
 
 - DM tooling must be installed and maintained on the Camera Diagnostic Cluster
 - Rapid-analysis-critical must be developed and deployed, with the ability to only focus on a subset of detectors, and/or metrics
 - The database containing the output must be hosted on the summit, then replicated outwards
 
-Note that the full output of Rapid Analysis cannot be computed due to the limited compute power.
+Note that the full output of Rapid Analysis cannot be computed due to the limited compute power of the Camera Diagnostic Cluster.
 
 This committee suggests that if Antu does need to stay at the base, then a step-wise approach where the infrastructure for scenario 1 gets implemented prior to significant effort being put into scenario 2, if deemed appropriate.
 The preferred solution is to move the Antu servers to the summit.
 
 .. _antu_at_summit:
 
-Antu at the Summit (Proposed Change)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Commissioning Cluster: Antu at the Summit (Proposed Change)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Another possibility which has been considered by this group is to relocate the Antu servers to the summit, even if it means reducing the cluster size in Chile and increasing the capability at the USDF.
 This scenario reduces the scope of the commissioning cluster, essentially relocating the functionality of a general compute facility to the USDF, and having the cluster be a more direct support to on-the-fly observations and reductions.
@@ -480,8 +484,8 @@ In doing so, this allows States 1 and 2 above to be supported when a network out
 Furthermore, it simplifies the number of systems that require support which significantly reduces the workload of the IT group.
 
 The first hurdle of moving Antu to the summit is the capacity to store, power, and cool the servers.
-The Chilean IT manager, Christian Silva, informed us that 2500 cores can be run on Cerro Pachón if needed.
-However, the support is based around 22 nodes or ~1400 cores, which is Yagan (being upgraded to 640 cores) and Antu (784 cores).
+The Chilean IT manager, Cristian Silva, informed us that 2500 cores can be run on Cerro Pachón if needed.
+The support is based around 22 nodes or ~1400 cores, which is Yagan (being upgraded to 640 cores) and Antu (784 cores).
 Therefore, capacity is not an issue.
 However, we must also consider what computing resources are required to support the two main use-cases for Antu:
 
@@ -493,7 +497,7 @@ The full focal plane sensing use-case suffers the same limitations of the Rapid 
 Currently, the full analysis takes approximately 3 minutes using 2-cores per chip on Antu, and is independent of location.
 However, moving the Antu servers to the summit enables this processing to occur in the event of an outage to the base.
 Speeding up this process, if required, would necessitate processing the data at the USDF, which is planning real-time support for commissioning (see `RTN-021 <https://rtn-021.lsst.io>`_).
-Although this does not explicitly include donut analysis, the cluster is fully capable of doing so and would not be running other real-time analysis at that time.
+Although this does not explicitly include full-frame curvature wavefront sensing analysis, the cluster is fully capable of doing so and would not be running other real-time analysis at that time.
 A trigger to process the AOS data would be required, how this would get accomplished is under investigation.
 Discussions are currently ongoing with Richard Dubois to better define the needed support and required timeline(s).
 
@@ -522,14 +526,13 @@ Deliverable 6: Camera Visualization Tool Expansion Support
      This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
-We have developed a plan to address the visualization requirements developed as part of first FAFF report and further refined based on
-discussion during FAFF2. 
+We have devised a plan to address the visualization requirements developed as part of first FAFF report and further refined based on discussion during FAFF2.
 The plans include the following major categories:
 
 1. Requirements that can be implemented with existing/planned camera/contributed labor
-2. Requirements which require additional hardware at USDF to support
+2. Requirements which demand additional hardware at USDF to support
 3. Requirements which will need significant front-end work
-4. Requirements which require significant DM expertise/assistance
+4. Requirements which necessitate significant DM expertise/assistance
 
 Significant progress has been made on category 1, including effort contributed by Oxford,UK under UKD-UKD-S7.
 We have also made progress on item 4, in particular targeting an early proof-of-concept by adding the ability to display DM generated FITS files including some level of instrument signature removal (ISR) using the RubinTV generated files from AuxTel. 
@@ -586,7 +589,7 @@ This use-case is designed to operate entirely independent of any image taking.
 
 **Execution (job):** Gathers last ~30 minutes of wind data, fits and extrapolates into the future.
 If the estimated wind in ~10 minutes exceeds a user-specified threshold, then an alert is raised to the observer.
-The analysis must be persisted, a plot plot showing the extrapolation must be presented to the observer.
+The analysis must be persisted, a plot showing the extrapolation must be presented to the observer.
 
 **Alert:** User gets notification of probable windshake, with link to webpage
 
@@ -723,7 +726,7 @@ It does not include subsystem specific displays such as what will be required fo
 #. An on-the-fly telescope offset calculation and implementation tool.
 #. A tool to display scalar fields, as discussed in `Deliverable 4`_.
 #. A display showing the calculated metrics for each image, with indicators when values are out of range.
-   The contents should be linked to down-range diagnostic tools/displays that are accessed upon "clicking."
+   The contents should be linked to diagnostic tools/displays that are accessed upon "clicking."
 #. Strip charts showing data quality metrics versus observing conditions.
 #. Image summary "pages" that display basic parameters, such as the PSF fundamental properties, filter used, observatory setup etc.
    Such as is done for Rubin TV.
@@ -828,7 +831,7 @@ FAFF-REQ-0056
 **Specification:** The Scheduler must be able to access the Rapid Analysis database.
 
 **Rationale:** If the database is implemented in Sasquatch a mechanism to access the data already exists.
-The Scheduler database is currently independent and needs to be merged.
+The Scheduler is currently keeping an independent visit database that needs to be merged.
 
 
 Display Tooling Requirements

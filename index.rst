@@ -17,7 +17,7 @@ Abstract
 ========
 
 The second `charge`_ to the First-Look Analysis and Feedback Functionality Breakout Group details questions regarding the displays and functionalities required to perform continuous nightly commissioning activities.
-The focus is on deriving the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data.
+The focus is on defining the required functionalities to perform inspection and analyses within approximately 24-hours of taking the data.
 This document details the answers to the charge questions and other findings.
 
 Executive Summary
@@ -26,11 +26,11 @@ Executive Summary
 The second First-Look Analysis and Feedback Functionality (FAFF2) report details the computational tasks and interactions with resultant data products that are needed to support the full 24-hour cycle of sustained observatory operations.
 Starting from a set of use-cases derived from expected commissioning needs and experience with other observatories, we identified two major compute-intensive tasks that are required for near-realtime evaluation of data quality to support nighttime decision making:
 
-- A **Rapid Analysis Framework** is needed to run single-frame processing (SFP) through the source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
-- A **camera image visualization tool** is needed to rapidly display full focal plane images and zoom in to inspect pixel-level details.
+- A **Rapid Analysis** capability is needed to run single-frame processing (SFP) through the source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
+- A **Camera Visualization Tool** is needed to rapidly display full focal plane images, including those accessible via the Butler, and zoom in to inspect pixel-level details. 
 
 We recommend that compute resources to support both of these tasks be located on the summit so that observers have near-realtime data quality information even in the event of a network outage.
-Basic camera health diagnostics and image display capabilities will run on the Camera Diagnostic Cluster, already located at the summit.
+Basic camera health diagnostics and the aforementioned image display capabilities will run on the Camera Diagnostic Cluster, already located at the summit.
 Rapid analysis would run on the commissioning cluster (Antu) that is currently in the process of having its hardware relocated to the summit.
 Making these capabilities available for use at the summit, especially Rapid Analysis, is the highest priority recommendation of the FAFF2 report.
 
@@ -39,7 +39,7 @@ Once the above computing resources are available at the summit, the next priorit
 - Deploy the Rapid Analysis framework
 - Begin calculating and logging low-level camera health diagnostics using the Camera Diagnostic Cluster
 - Stand up databases to record the time series of telemetry together with metric values produced by Rapid Analysis and camera health diagnostics (e.g., Sasquatch)
-- Develop the framework for generating alerts that metric values and reduced images are available.
+- Develop the framework for generating notifications and/or alarms that metric values and reduced images are available.
 
 With this infrastructure in place, we will begin using the tools together to generate, record, alert, display, and ultimately react to non-compliant metric values.
 From this stage, we will expand capabilities to produce a variety of displays via multiple tools, including; metric time series and corresponding telemetry data (Chronograf), scalar fields (Bokeh apps), full focal plane image visualization (Camera Visualization Tool), as well as generate alarms and more detailed reports (Catcher).
@@ -220,7 +220,7 @@ Re-calculation of these values enables a more detailed and higher-confidence dat
 It also allows the teams to begin determining which subsets of data should be used to construct coadds/templates, begin science verification analyses, and ultimately maximize the number of human brain cycles looking at the data.
 It is fully expected that this dataset will be superseded by a subsequent DRP campaign to enforce that all the data is processed in a homogeneous way with best performing configuration of the science pipelines.
 
-It is not required that the full SFP processing be done in Chile, in fact, it is *preferable* to perform this processing at the USDF as many of the science verification tasks are planned to be performed there as well.
+It is not required that the 12-24 hour full SFP processing be done in Chile, in fact, it is *preferable* to perform this at the USDF as many of the science verification tasks are planned to be performed there as well.
 It also ensures that a minimum number of users are connecting to Chile to perform their analyses.
 This is especially important if connections are required to the summit instance.
 
@@ -276,8 +276,8 @@ Importantly, analysis_tools adds the ability to easily reconstitute input data p
 The package adopts a modular design to encourage re-using code for metric calculation and visualization.
 Currently implemented analyses include metrics and plots that run on per-visit source tables, per-tract object tables, per-tract associated sources, and difference image analysis source and object tables.
 
-analysis_tools was added to main distribution of Science Pipelines (lsst_distrib) in August 2022.
-The package now includes multiple example metrics and plots for single-visit, deep coadd, and different image analysis (DIA) data quality assessment.
+analysis_tools was added to the main distribution of Science Pipelines (lsst_distrib) in August 2022.
+The package now includes multiple example metrics and plots for single-visit, deep coadds, and difference image analysis (DIA) data quality assessment.
 For examples, see the `tutorial notebook <https://github.com/lsst-dm/analysis_tools_examples>`_ shown at the Rubin PCW 2022.
 
 .. _Deliverable 3:
@@ -596,6 +596,9 @@ This work is being generalized to ComCam and the main camera, with the intention
 
 This work is being further tracked under `SITCOM-190 <https://jira.lsstcorp.org/browse/SITCOM-190>`_ which includes links to the detailed phased implementation plans and an evolving set of implementation JIRAs.
 
+We also recommend making use of existing URL interfaces to the RSP Portal image visualization tool, based on Firefly, so that, starting from the CVT, an individual detector image can be brought into Firefly for more detailed inspection. 
+This also will provide an interim means of satisfying several of the above requirements at single-CCD scale while these capabilities are being brought into the CVT, including FAFF-REQ-020, FAFF-REQ-019, FAFF-REQ-011, FAFF-REQ-012, FAFF-REQ-015, FAFF-REQ-022, and FAFF-REQ-023, which are all existing Portal capabilities.
+
 .. _Deliverable 7:
 
 Deliverable 7: Catcher Development
@@ -762,6 +765,7 @@ Tier 3:
   There is requirement to wait until the morning to begin reductions and in fact processing the results as the data streams in is preferred.
   Note that early runs can put data into the butler and can then be expanded to a database.
 - CVT augmented to read processed images from Rapid Analysis, then expanded to support any full frame image persisted in the Butler
+- CVT expanded with a UI for opening a selected detector image in Firefly
 - Create templates for development of Catcher, Bokeh, and possibly LOVE displays by SIT-Com personnel and/or project software developers.
 - Develop training examples.
   Ideally, this will be performed in conjunction with the development of templates.

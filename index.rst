@@ -27,7 +27,7 @@ The second First-Look Analysis and Feedback Functionality (FAFF2) report details
 Starting from a set of use-cases derived from expected commissioning needs and experience with other observatories, we identified two major compute-intensive tasks that are required for near-realtime evaluation of data quality to support nighttime decision making:
 
 - A **Rapid Analysis** capability is needed to run single-frame processing (SFP) through the source detection and measurement steps on bright stars in order to make basic measurements of delivered image quality and optical throughput.
-- A **Camera Visualization Tool** is needed to rapidly display full focal plane images, including those accessible via the Butler, and zoom in to inspect pixel-level details. 
+- A **Camera Visualization Tool** is needed to rapidly display full focal plane images, including those accessible via the Butler, and zoom in to inspect pixel-level details.
 
 We recommend that compute resources to support both of these tasks be located on the summit so that observers have near-realtime data quality information even in the event of a network outage.
 Basic camera health diagnostics and the aforementioned image display capabilities will run on the Camera Diagnostic Cluster, already located at the summit.
@@ -326,33 +326,156 @@ Analysis of unbinned data is clearly needed for pipeline data quality analyses, 
 Databases
 ^^^^^^^^^
 
-.. warning::
+This section identifies commissioning-specific database needs based primarily upon the aforementioned `use cases`_.
 
-   This section is not yet completed and only reports the current status.
+The concept of a Visit database has been presented in `DMTN-227 The Consolidated Database of Image Metadata`_.
+The Consolidated database is very broad in application, and discussing its contents is out-of-scope for FAFFv2.
+However, after evaluating its design, we concluded that the Visit database is the component of the Consolidated database that best matches the commissioning requirements over the 24-48 hour time interval for a database.
 
-Data from the observatory will come from numerous sources.
-To minimize maintenance and facilitate ease-of-use, efforts should be made to minimize the number of active databases.
-Suggestions to create new individualized databases should be resisted unless no existing database can be utilized.
-Whereas much of the data coming off the summit is time based and therefore goes into a time-based database (the EFD), other aspects of the system are image based, such as what will be produced by Rapid Analysis and the parts of the camera system.
-The implementation of various project databases is currently being discussed and documented in a number of tech notes [#]_ however, the capabilities and functionalities required by the commissioning team has not been explicitly described.
+This relational database consolidates raw image metadata, Rapid Analysis outputs, telemetry data, and other datasets related to the observations.
 
-.. [#] For further details, consult the following technotes, which are in various states of being written: `Sasquatch`_, the `Butler <https://dmtn-204.lsst.io>`_,  database support for `campaigns <https://dmtn-220.lsst.io/>`_, as well as the `consolidated database <https://dmtn-227.lsst.io/>`_.
+We discuss possible paths for its implementation using existing tools in DM, bearing in mind the near real-time feedback requirements of Rapid Analysis.
 
-FAFF is assembling a series of use-cases, specifically descriptions of database queries, that will identify the commissioning-specific functionalities required by the project databases.
-This content is currently hosted on `a confluence page <https://confluence.lsstcorp.org/display/LSSTCOM/Use+cases+for+commissioning+databases>`_, but the pertinent content will be merged to this report and/or the use-cases described as part of `Deliverable 1`_.
+Note that in addition to the Visit database, values, such as scalar metrics, can also be added to other databases (e.g., a time series database) when it makes sense to do so.
 
-Independent of the work describe above, early discussions have already yielded the following requirements on the database infrastructure, with more to come as the work progresses:
+Early discussions have yielded data access requirements relevant to the database infrastructure (see :ref:`Data Access <data-access-reqs>`).
 
--  Users require a framework/method that manages the point(s) of access, analogous to the EFD Client (`FAFF-REQ-0055`_).
-   Ideally, users will have the impression all queries are going to a single database, despite what is actually happening on the back-end(s).
-- The database must be available and rapidly synced to at all major data facilities (`FAFF-REQ-0055`_), analogous to what is done for the summit EFD.
-- Summit tooling, including the Scheduler, must have immediate access to the database (`FAFF-REQ-0056`_).
 
-..
-   Plot Visualization
-   ^^^^^^^^^^^^^^^^^^^
-   Use and expansion of the plot visualization tool.
-   Also explain the current use of RubinTV
+The Engineering and Facilities Database (EFD)
+"""""""""""""""""""""""""""""""""""""""""""""
+
+The telemetry data from the observatory systems are recorded in the EFD.
+The data is organized by topics following the `T&S XML schema`_ and recorded in InfluxDB, a time series database optimized for queries constrained by time on large datasets.
+
+The EFD is managed by `Sasquatch`_, an RSP service that includes tools like Chronograf for data exploration and visualization and Kapacitor for alerting on the EFD data
+(see also :ref:`Metric databases in Sasquatch <metric-databases>`).
+
+.. _the-butler-registy:
+
+The Butler registry
+"""""""""""""""""""
+
+Rapid Analysis will use the Science Pipelines infrastructure for SFP.
+That infrastructure provides a Butler registry, a database for tracking processing input and output datasets.
+
+The current plan is to have a Butler repository per instrument at the Summit.
+
+Once the exposures are ingested into the Butler "raw" collection, IDs are assigned, and the registry becomes the primary source for obtaining the list of observations.
+
+The Butler registry schema is described in `DMTN-073`_.
+It is designed to support visits composed of multiple exposures.
+If the visit is composed of a single exposure, then the visit table has entries that are essentially duplicates of the science exposures in the exposure table.
+However, the registry database contains only a small subset of the raw image metadata (the information about the conditions under which an image was taken summarized in the image headers).
+
+Analysis outputs are not in the registry database; they are typically linked to the visit table in the registry and stored as files in the Butler datastore.
+An example of an SFP task that produces such ouput is the `ConsolidateVisitSummaryTask`_ task that persists per-detector summary statistics computed for calibrated exposures into a per-visit dataset in Parquet files.
+
+Expanding the Butler registry database to include the required raw image metadata and analysis outputs is out-of-scope.
+Hence the need for a Visit database.
+
+The Butler registry also has no direct access nor relationships to the EFD.
+
+.. _visit-database:
+
+The Visit database
+""""""""""""""""""
+
+The initial content for the Visit database is described in the database `use cases`_ Confluence page and summarized in this section.
+We also discuss implementation details for creating and updating the Visit database tables.
+
+The Visit database implementation is left to the future developers, but similarly to the Butler registry, a PostgreSQL database, appears to be a viable option.
+
+The visit database must be available at the Summit and USDF.
+Again, the implementation (e.g., replication vs. reprocessing) is left to the future developers.
+Still, it is a strict requirement that the contents be identical in both instances, with the nominal retention period of 30 days at the Summit.
+
+**Visit and detector tables**
+
+The image headers and the Rapid Analysis outputs are the primary sources of information for the visit and detector tables.
+
+Rapid Analysis will have access to the headers during processing and can consolidate the raw image metadata into per-detector, and per-visit datasets along with the per-visit summary statistics from SFP persisted as Butler datasets.
+Scalar metrics, discussed in the :ref:`analysis tools overview <analysis_tools_overview>` section, can also be persisted as Butler datasets (see `DMTN-203 Tracking Metrics in Butler`_).
+
+A mechanism for creating these tables in a relational database already exists in DM.
+In particular, if the schema for a Butler dataset is defined in the `Science Data Model`_ (SDM) repository, the database schema can be created from those definitions.
+
+Finally, the method for loading the Rapid Analysis results must ensure the data is readily available in the Visit database after each visit is processed.
+The current method used for DRP based on the extraction of datasets from the Butler and loading into a database after the processing will not work for the Rapid Analysis use case.
+
+**Telemetry summary tables**
+
+The current approach for combining visit information with telemetry data is a "join on time," which essentially involves querying two databases, the Butler registry to retrieve the visit's start and end times and the EFD to retrieve the telemetry values in that time range.
+
+The database `use cases`_ Confluence page indicates the telemetry information that would be most useful in the Visit database.
+Typically the full time series from the EFD is not required and should be resampled onto the visit time range via summary statistics.
+The information, usually spread across multiple EFD topics, should also be consolidated into fewer tables to make it easier to query and join with other tables in the Visit database.
+
+A tool for creating these "telemetry summary tables" in a relational database does not currently exist.
+The `SQR-58 The EFD transformation service`_ presents a possible solution by filtering and combining information from multiple EFD topics and aggregating values over time.
+This tool must be flexible enough to incrementally add new tables or add new columns to existing tables in the Visit database as needed.
+For the Rapid Analysis use case, loading past data into the new tables/columns is not required after evolving the schema because Rapid Analysis is only to be run once at the Summit.
+At USDF, however, we may want to run an analysis similar to Rapid Analysis and rerun it over historical data.
+
+Note that Camera diagnostics are currently recorded in a separate database.
+Ideally, the camera diagnostics tables would live in the Visit database only.
+If that's not possible, we can duplicate the information.
+
+In addition, we could also replicate visit IDs and visit start/end times from the Butler registry into the EFD to enable the "join on time" with a single query in the EFD.
+
+**Exposure and narrative log tables**
+
+A system for exposure-level and human narrative input from the Summit team is in place through the `exposure log`_ and `narrative log`_ tools.
+The corresponding tables should exist in the Visit database to allow joins with other tables in the Visit database.
+
+**Scheduler tables**
+
+Currently, the only way to retrieve scheduler snaphost files is by querying the ``logevent_largeFileObjectAvailable`` event recorded in the EFD.
+That topic contains the URI to retrieve the corresponding file from the LFA.
+
+Adding a table in the Visit database linking the scheduler snapshot files with the observations would make those files more accessible to tools like the schedview (see `RTN-037 Architecture for Scheduler and Observing Progress Monitoring Software`_ ).
+
+**Calibration Products table**
+
+A table for keeping track of the calibration set used in a given Rapid Analysis run and the time when the calibration set was updated is important for correlating those changes with image quality metrics.
+Currently, for AuxTel, the calibration collection in the Butler is updated manually, and the list of calibrations used in a given run is stored in the output headers (see DM-37129).
+The Butler provenance system might also help to solve this problem (see `DMTN-205 Tracking Provenance in Butler`_).
+
+In addition, we want to be able to store results from the calibration pipeline and Rapid Analysis to track the state of the system (e.g., the read noise per amplifier) and as a function of time.
+We need this information at the Summit to monitor the camera's health.
+
+**External data tables**
+
+The Visit database should also store external data related to the observations, such as DIMM data from Gemini, external weather information, etc.
+
+.. _metric-databases:
+
+Metric databases in Sasquatch
+""""""""""""""""""""""""""""""
+
+In addition to the Visit database, we recommend recording scalar metrics computed by the Rapid Analysis, Camera diagnostics metrics, Scheduler metrics, and Calibration pipeline metrics in a time series database.
+
+As discussed above, the metric datasets created by :ref:`analysis_tool <analysis_tools_overview>` are persisted as Butler datasets.
+The current plan is to stream those metrics to `Sasquatch`_ (e.g. via a pipeline task) and record them in InfluxDB.
+This way, the metrics will be available in Chronograf next to the EFD telemetry data enabling further monitoring and visualization.
+
+.. _use cases: https://confluence.lsstcorp.org/pages/viewpage.action?spaceKey=LSSTCOM&title=Use+cases+for+commissioning+databases
+.. _T&S XML schema: https://github.com/lsst-ts/ts_xml
+.. _DMTN-073: https://dmtn-073.lsst.io/DMTN-073.pdf
+.. _ConsolidateVisitSummaryTask: https://pipelines.lsst.io/modules/lsst.pipe.tasks/tasks/lsst.pipe.tasks.postprocess.ConsolidateVisitSummaryTask.html
+.. _ObsCore schema implemented for DP.02: https://github.com/lsst/sdm_schemas/blob/main/yml/dp02_obscore.yaml
+.. _DMTN-236 ObsCore as a View of Butler Registry Tables: https://dmtn-236.lsst.io
+.. _DMTN-227 The Consolidated Database of Image Metadata: https://dmtn-227.lsst.io
+.. _DMTN-203 Tracking Metrics in Butler: https://dmtn-203.lsst.io/v/DM-31599/index.html
+.. _Science Data Model: http://github.com/lsst/sdm_schemas
+.. _SQR-58 The EFD transformation service: https://sqr-058.lsst.io
+.. _exposure log: https://github.com/lsst-sqre/exposurelog
+.. _narrative log: https://github.com/lsst-sqre/narrativelog
+.. _RTN-037 Architecture for Scheduler and Observing Progress Monitoring Software: https://rtn-037.lsst.io
+.. _DMTN-205 Tracking Provenance in Butler: https://dmtn-205.lsst.io
+.. _DMTN-220 Middleware Support for Campaign Definition and Management: https://dmtn-220.lsst.io
+.. _LPM-17 The LSST System Science Requirements Document: https://docushare.lsst.org/docushare/dsweb/Get/LPM-17
+.. _ImSim: https://github.com/lsst/sdm_schemas/blob/main/yml/imsim.yaml
+
 
 .. _Deliverable 4:
 
@@ -363,7 +486,7 @@ Deliverable 4: Required Non-Scalar Metrics
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with analysis_tools.
+  1. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with analysis_tools.
      Suggest a mechanism (work flow) to perform the measurement, document the finding, evaluate any trend (if applicable), then present it to the stakeholders.
 
 
@@ -596,7 +719,7 @@ This work is being generalized to ComCam and the main camera, with the intention
 
 This work is being further tracked under `SITCOM-190 <https://jira.lsstcorp.org/browse/SITCOM-190>`_ which includes links to the detailed phased implementation plans and an evolving set of implementation JIRAs.
 
-We also recommend making use of existing URL interfaces to the RSP Portal image visualization tool, based on Firefly, so that, starting from the CVT, an individual detector image can be brought into Firefly for more detailed inspection. 
+We also recommend making use of existing URL interfaces to the RSP Portal image visualization tool, based on Firefly, so that, starting from the CVT, an individual detector image can be brought into Firefly for more detailed inspection.
 This also will provide an interim means of satisfying several of the above requirements at single-CCD scale while these capabilities are being brought into the CVT, including FAFF-REQ-020, FAFF-REQ-019, FAFF-REQ-011, FAFF-REQ-012, FAFF-REQ-015, FAFF-REQ-022, and FAFF-REQ-023, which are all existing Portal capabilities.
 
 .. _Deliverable 7:
@@ -862,6 +985,8 @@ FAFF-REQ-0059
 
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
 One way to satisfy this requirement is to ensure that the "analysis_tools metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
+
+.. _data-access-reqs:
 
 Data Access
 -----------

@@ -38,15 +38,43 @@ Once the above computing resources are available at the summit, the next priorit
 
 - Deploy the Rapid Analysis framework
 - Begin calculating and logging low-level camera health diagnostics using the Camera Diagnostic Cluster
-- Stand up databases to record the time series of telemetry together with metric values produced by Rapid Analysis and camera health diagnostics (e.g., Sasquatch)
+- Stand up databases to record the time series of telemetry together with metric values produced by Rapid Analysis and camera health diagnostics (e.g., the Visit database and Sasquatch)
 - Develop the framework for generating notifications and/or alarms that metric values and reduced images are available.
 
 With this infrastructure in place, we will begin using the tools together to generate, record, alert, display, and ultimately react to non-compliant metric values.
 From this stage, we will expand capabilities to produce a variety of displays via multiple tools, including; metric time series and corresponding telemetry data (Chronograf), scalar fields (Bokeh apps), full focal plane image visualization (Camera Visualization Tool), as well as generate alarms and more detailed reports (Catcher).
 Emphasis should initially be on exercising the interfaces between these tools and then expanding the capabilities of individual tools.
 
+The creation of a unified toolset to perform both data-driven and control-system driven tasks requires accumulating data from multiple components and databases.
+:numref:`fig_data_flow` shows the data flows from the different data sources, and demonstrates which data is available from each of the user-facing tools.
+Although not explicitly shown in the diagram, this data and tool set shall be made available at USDF (with the exception of LOVE and the summit-alert system, as they are directly connected to the summit control network).
+
+.. _fig_data_flow:
+
+.. figure:: _static/FAFF2\ data\ flow\ diagram.png
+
+   : Data flow from sources, to databases, to user-facing tools.
+   The details of each component, their uses, and available data are discussed in detail throughout the report.
+
+The user-facing tools satisfy multiple use-cases, satisfying the required functionalities for both data-driven and observatory control driven tasks.
+However, a common landing page containing explanations of which tools are best-suited for particular applications is required.
+This could be achieved by adding content to the `Science Platform landing page <https://data.lsst.cloud/>`_, which is already performing a similar purpose.
+This requires augmenting the functionality of certain tools such that they are capable of supporting linking and callbacks between themselves, such that the user smoothly moves between the interfaces.
+Although demonstrated to be feasible by this working group, additional effort is required to properly integrate the components.
+:numref:`fig_venn_diagram` shows the envisioned set of tools, and which are used for each aspect of data interaction.
+The solid lines between the components indicate which tools can interface with others.
+
+.. _fig_venn_diagram:
+.. figure:: _static/FAFF2\ venn\ diagram.png
+
+   : Data-driven users and control-system users both share a common set of tools to perform their tasks.
+   With a modest amount of effort, these tools can be better integrated to provide a smooth and unified user-experience.
+
+
 While drafting the FAFF report, we explored several demonstrations of the functionality described above, but implementation of an end-to-end system is beyond the scope of this group.
 Many of the tasks above can be pursued in parallel, but draw upon a specific small set of developers, and thus careful coordination and management is needed.
+It is recommended that a design-and-implementation group be assembled to develop these tools.
+Participants should include personnel from the FAFF working group to maintain continuity and provide additional guidance and/or context to the content in this report.
 More individuals will be able to effectively contribute as continued effort is put into developing templates and extensible frameworks.
 In addition, we identified several capabilities, such as logging tools and a tabular summary of recent exposures with linked diagnostic information, that would already be in regular use with AuxTel observations but are not currently owned by any person/group.
 Most of the planned tooling for visualizing data quality information should be sufficiently straightforward to not require dedicated training for users.
@@ -74,7 +102,7 @@ Rapid Analysis Capability
 Most of the envisioned FAFF functionality requires data products based on both observatory events and/or telemetry as well as camera images to be available for immediate use at the summit in order to display this information and thereby inform nighttime operations.
 While developing use cases, we recorded the applicable input data products and associated timescales for their use, and then compiled these into a consolidated list to better understand the set of required data processing, analysis, artifact creation and handling mechanisms.
 
-We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated SFP of camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
+We find that multiple FAFF use cases require a `Rapid Analysis <https://confluence.lsstcorp.org/display/LSSTCOM/Rapid+Analysis+Use-Case>`_ capability that includes automated Single Frame Processing (SFP) of camera images through instrument signature removal and source detection on the 30-60 second timescale to enable the creation of various data quality metrics and data visualizations.
 The Confluence page linked above describes the needed data products and timescales for their creation, as requested in `charge`_  question 2.
 The use cases developed for charge question 1 assume that the data products from this initial processing step are available.
 
@@ -107,7 +135,7 @@ Deliverable 1: Use-Cases
       A reduced set of use-cases should be created as a regular reference throughout the charge.
       A set of required turn-around time(s) should be defined and assigned to each case where applicable.
 
-      - Use-cases should be complete, including which inputs are required and from where they will originate (e.g. SAL Script, EFD, LFA, external source), desired manipulations, logic-based operations/calculations, and if/how the desired artifacts are presented to the user (e.g. display images and/or graphs).
+      - Use-cases should be complete, including which inputs are required and from where they will originate (e.g., SAL Script, EFD, LFA, external source), desired manipulations, logic-based operations/calculations, and if/how the desired artifacts are presented to the user (e.g., display images and/or graphs).
 
 
 Numerous use cases were developed to capture the needed functionalities and assist in developing a common understanding of what is expected in each scenario.
@@ -118,11 +146,6 @@ The remaining use-cases for FAFF2 can be found on the FAFF use-cases page `on co
 Daytime Calibration
 ^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-
-   This section is not yet completed and only provides a status update.
-
-
 During the course of the working group, the example of daytime calibration was raised repeatedly, specifically in regards to how calibration data products are generated and what is expected of the observing specialist.
 The aspect pertaining specifically to the FAFF charge is what the observer is required to look at during the process, including both images and/or alarms.
 The details of how Daytime Calibration is performed is being documented in `DMTN-222 <https://DMTN-222.lsst.io>`_ and will not be repeated as a new FAFF use-case.
@@ -130,7 +153,7 @@ The details of how Daytime Calibration is performed is being documented in `DMTN
 In short, a SAL Script is launched by the observer to acquire a daytime set of calibrations.
 This SAL script launches an OCPS-based processing of the images, but the ScriptQueue does not block on the processing awaiting the final analysis.
 Currently, if the process fails then no alert is generated automatically.
-However, as will be discussed in the following sections, a Watcher [#]_ alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g. the shutter did not open and the flats have no signal).
+However, as will be discussed in the following sections, a Watcher (see :ref:`note <note_watcher_csc>`) alarm will be setup to listen and alert users (via LOVE) in the event of a catastrophic failure in the analysis which the observer could do something about (e.g., the shutter did not open and the flats have no signal).
 How the observer responds to the alert is currently being discussed.
 Presumably, this will use a parameterized notebook that will allow an observer to better understand the issue.
 Any viewing of the raw frames themselves will utilize the Camera Visualization Tool.
@@ -139,7 +162,11 @@ In the case where a more complex issue arises (e.g., a 2% increase in bad pixels
 When the calibrations used on the summit need to be updated, this is the role of the calibration scientist and is not the responsibility of the observer.
 Furthermore, this cadence is expected to be slow (months) and is therefore outside the scope of this charge.
 
-.. [#] The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying.
+.. _note_watcher_csc:
+
+.. note::
+
+   The `Watcher CSC <https://ts-watcher.lsst.io/>`_ is provided a list of "rules" that it ensures the system is always obeying.
    If a rule is violated, such as a temperature going out of specification, an alert or alarm is issued to the observer via the LOVE interface.
    The alarm stays in place until the rule is no longer violated and the original alert has been acknowledged.
    The Watcher is not able to perform analyses and only evaluates simple conditions.
@@ -229,8 +256,8 @@ Lastly, the results of this analysis do not need to be forwarded back to the sum
 Potential Paths for Implementation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Rapid Analysis payload relies heavily on SFP, and therefore is a compatible payload with both the DRP and the Alert Production Pipelines.
-The ultimate implementation decisions are outside the FAFF scope, however, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g. catalogues), it is expected that the path of least resistance would be to work with the Alert Production team in the development of Rapid Analysis.
+The Rapid Analysis payload relies heavily on single-frame-processing (SFP), and therefore is a compatible payload with both the DRP and the Alert Production Pipelines.
+The ultimate implementation decisions are outside the FAFF scope, however, because of the speed requirements, which will necessitate the pre-loading of expected image properties into memory (e.g., catalogues), it is expected that the path of least resistance would be to work with the Alert Production team in the development of Rapid Analysis.
 
 Another aspect which may impact implementation is that Rapid Analysis only needs to run once per frame.
 Even upon a failure to produce one of the parameters, or the publishing of an incorrect result, the system will not be rerun and therefore the database containing the results does not need to support versioning or relationships to previous results.
@@ -267,7 +294,7 @@ analysis_tools
 Several `basic per-detector data quality statistics <https://confluence.lsstcorp.org/display/LSSTCOM/Science+performance+metrics+to+support+nightly+operations>`_ are generated during SFP and persisted in the Butler repository.
 These basic quantities can be supplemented by more detailed data quality diagnostics produced by other Science Pipeline components.
 
-The recently released `analysis_tools python package <https://github.com/lsst/analysis_tools>`_ is a refactor of the faro and analysis_drp packages that provides both metric and plot generation functionality.
+The `analysis_tools python package <https://github.com/lsst/analysis_tools>`_ is a refactoring of the faro and analysis_drp packages that provides both metric and plot generation functionality.
 The package includes a set of analysis modules that can be run as Tasks within a data reduction pipeline, as part of a separate afterburner pipeline, or imported and executed standalone, in a script/notebook.
 
 The new package more fully leverages DM-middleware capabilities, e.g., high configurability and efficient grouping of analyses into quanta with a smaller number of output files.
@@ -289,7 +316,7 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-   1. (`SITCOM-174`_, `SITCOM-173`_) Define how users will interact with each aspect of the previously listed metrics, analyses and artifacts; classify them indicating where can could calculated.
+   3. (`SITCOM-174`_, `SITCOM-173`_) Define how users will interact with each aspect of the previously listed metrics, analyses and artifacts; classify them indicating where can could calculated.
 
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
@@ -314,9 +341,9 @@ Examples include:
 
 It is useful to group into aggregated (binned) and non-aggregated (unbinned) metrics.
 
-- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g. an amplifier, detector, raft, or telescope position), where the scaling could potentially modified.
+- Binned: aggregated values that are pre-computed on a specified spatial scale (e.g., an amplifier, detector, raft, or telescope position), where the scaling could potentially modified.
   Depending on the case, a slider could be present to adjust the scaling on-the-fly.
-- Unbinned: Value per source (e.g. photometry measurement at each previous visit).
+- Unbinned: Value per source (e.g., photometry measurement at each previous visit).
 
 After significant discussion, it was determined that operations on the mountain and within the first ~24 hours of taking data, it is sufficient to deal with *only* aggregated data.
 However, multiple forms of aggregation need to be supported (per amp, per detector, per raft, per HEALPix, sq degree etc.)
@@ -477,6 +504,36 @@ This way, the metrics will be available in Chronograf next to the EFD telemetry 
 .. _ImSim: https://github.com/lsst/sdm_schemas/blob/main/yml/imsim.yaml
 
 
+On-the-fly Quality Assessment and Alerts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An extension of charge question `Deliverable 3`_, and alluded to in `Deliverable 4`_, is the evaluation of metrics, categorizing their values into a range (e.g., Acceptable, Warning, Alert) and ultimately informing the operator.
+Following from the recommendations in this report, metrics of interest will be produced by the Rapid Analysis payload and inserted into the visit database, however, no mechanism to compare and/or evaluate those metrics relative to specifications and/or other data streams has been discussed.
+
+An example use-case regarding how metric evaluation would be used during operations is as follows:
+
+- Rapid analysis produces metrics derived from images.
+  In this case, let us assume the metric of interest is the PSF FWHM, an indicator of image quality.
+- If the FWHM is very poor, this could be is an indication of mirror figure and/or defocus issues.
+- If the atmosphere seeing is also very poor, then a large FWHM is expected.
+  The metric of interest to an operator is then a comparison between the DIMM and FWHM values, which originate from different sources, and are not precisely synced in time.
+- If the variation between the values exceeds a threshold, then the operator must be alerted.
+
+Although a system (the Watcher) could be used to raise awareness to an operator, there is no tool that is integrated into regular summit operations that can do the metric comparison, thresholding, and perform a single-instance alert (see :ref:`this note <note_watcher>` for more details).
+`FAFF-REQ-0061`_ has been created to capture this functionality.
+
+
+It should be noted that a similar functionality has been developed as part of the Quality Analysis aspects for the Data Management group in `SQuaSH <https://sqr-033.lsst.io>`_.
+This tool is already planned to be `incorporated into Sasquatch <https://sqr-068.lsst.io/>`_, but expansion and/or evolution of this tool set might offer a potential avenue to fulfilling this requirement.
+
+.. _note_watcher:
+
+.. note:: 
+
+   In the current implementation of the Watcher, alerts can only be reset if the condition that caused the alert is remedied. 
+   For example, if an alarm is published due to a rule being triggered (e.g. FWHM is too high), the alarm stays active until the same event is published that has a value within range. 
+   This means that there is significant refactoring required to support data-driven one-off alarms such as these. 
+
 .. _Deliverable 4:
 
 Deliverable 4: Required Non-Scalar Metrics
@@ -486,7 +543,7 @@ Deliverable 4: Required Non-Scalar Metrics
 
    The deliverable description from the `charge`_ has been directly copied here to ease readability.
 
-  1. (`SITCOM-180`_) Provide a list of required non-scalar metrics are required and cannot be computed with analysis_tools.
+  4. (`SITCOM-180`_) Provide a list of required non-scalar metrics that cannot currently be computed with analysis_tools.
      Suggest a mechanism (work flow) to perform the measurement, document the finding, evaluate any trend (if applicable), then present it to the stakeholders.
 
 
@@ -502,16 +559,17 @@ Currently, `analysis_tools`_ computes a bundle of single-valued (scalar) metrics
 With small modifications, the package could persist arrays of metric values (e.g., per detector or finer granularity) that could be aggregated and visualized in flexible ways by downstream tooling.
 The package already produces and persists static plots for displaying scalar fields in focal plane coordinates.
 
-After analyzing the use-cases, including hypotheticals not detailed in the report, it was decided that there is not a use-case where we the trending of scalar fields is truly required.
-In all instances, the scalar field could be represented as a single valued metric (e.g. a mean, or standard deviation) with respect to a third axis (e.g. time, elevation etc), so long as the desired aggregation is supported.
+After analyzing the use-cases, including hypotheticals not detailed in the report, it was decided that there is not a use-case where the trending of scalar fields is truly required.
+In all instances, the scalar field could be represented as a single-valued metric (e.g., a mean, or standard deviation) with respect to a third axis (e.g., time, elevation etc), so long as the desired aggregation is supported.
 Taking the examples discussed above, one would reduce the scalar field to a number of scalar metrics, such as the mean PSF width, or the standard deviation about that mean, as a function of elevation.
-Similarly, the sky transparency could be handled by looking at the standard deviation compared to a 2-d map of a photometric night.
+Similarly, the sky transparency could be handled by looking at the standard deviation compared to the distribution across the focal plane during a photometric night.
 Reducing a scalar field to a scalar metric creates a more generalizable framework to communicate data, however, it comes at the expense of removing information.
+In situations where an additional level of diagnostic capability is desired, analysis_tools can generate static plots showing the scalar field and persist these plots alongside the summary scalar metrics.
 
 The most concerning issue with representing a field as a single metric is that it can hide underlying systematics, such as having only one side of the field having an effect, which is not noticed when looking only at a single number representing the entire field.
 For this reason, and for the more general reason of needing the ability to dig into the data when a metric is not within the expected range, it is required to have the ability to view and reproduce the data that went into calculating the analysis_tools metric.
 `FAFF-REQ-0059`_ has been created to capture the functionality of writing to disk both the calculated metric, and the object that was used to determine it.
-This capability is now realized by the refactored analysis_tools design.
+This capability is now realized by the analysis_tools design.
 
 When diagnosing the data, the plots and investigations can be time consuming to code and display.
 Because in all FAFF related use-cases we are dealing with aggregated data, it would be useful to generate a generic application, most likely in Bokeh, that can present both sky and focal plane aggregated data as a function of a 3rd axis of interest.
@@ -520,13 +578,12 @@ Naturally, people should be able to fork and customize the app for specific impl
 
 Functionality of the tool could include:
 
-- Ability to flip through a 2-d data cube as a movie
+- Ability to flip through a series 2-dimensional scalar fields as a movie, where the series represents a user-specified parameter such as time, elevation, or temperature.
 - Click on a given amp and have a plot of the value versus time, with the expectation value of the metric over plotted etc.
 - Ability to show sky maps as a function of time, and adjust the binning on-the-fly
-- Capable of mining the appropriate data given the specific analysis_tools metric (including timestamp etc)
+- Capable of mining the appropriate data given the specific analysis_tools metric (including timestamp, etc.)
 
 Lastly, it is recognized that the DM DRP team also needs to interact with non-aggregated data, this is outside the scope of FAFF, however, adopting a common toolset, or one that is based off the tooling being discussed here is recommended.
-
 
 
 .. _Deliverable 5:
@@ -630,10 +687,15 @@ This will add functionality in the case of an outage and decreases the workload 
 If the compute load is insufficient to perform all Rapid Analysis tasks, then the project can either augment the number of machines, or reduce the number of detectors that are processed in the pipeline.
 In discussions with both the AOS and Science Verification teams, using ~50% of the detector has not been met with any resistance.
 If full-focal plane wavefront sensing requires more compute, we recommend moving that processing to the USDF and developing an automatic trigger mechanism.
-In the case where the link to USDF is lost, it will be required to accept the additional overhead associated with performing the calculation on fewer machines (the Antu servers) [#]_, which is the originally baselined plan.
+In the case where the link to USDF is lost, it will be required to accept the additional overhead associated with performing the calculation on fewer machines (the Antu servers, see :ref:`note <note_full_focal_plane_analysis>`), which is the originally baselined plan.
 
 
-.. [#] A single full focal plane analysis currently takes ~3 min with 2 cores per chip. Note that Rapid Analysis does not need to be run on these images, thus saving compute time, but it is important to make sure the processes are setup such that they do not compete.
+.. _note_full_focal_plane_analysis:
+
+.. note:: 
+   
+   A single full focal plane analysis currently takes ~3 min with 2 cores per chip. 
+   Note that Rapid Analysis does not need to be run on these images, thus saving compute time, but it is important to make sure the processes are setup such that they do not compete.
 
 
 .. _Deliverable 6:
@@ -647,21 +709,21 @@ Deliverable 6: Camera Visualization Tool Expansion Support
 
   6. Develop a plan and scope estimate to expand the Camera Visualization Tool to support the full commissioning effort.
 
-     This includes identifying libraries/packages/dependencies that require improvements (e.g. Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
+     This includes identifying libraries/packages/dependencies that require improvements (e.g., Seadragon) and fully scoping what is required to implement the tool with DM tooling such as the Butler.
      The scope estimate may propose the use of in-kind contribution(s) to this effort if and where applicable.
 
 We have devised a plan to address the visualization requirements developed as part of first FAFF report and further refined based on discussion during FAFF2.
 This plan is based on use of the Camera Image Visualization (CVT) tool already in use for AuxTel, ComCam, and the Main Camera.
 
-.. figure:: images/cvt/auxtel.png
+.. figure:: _static/cvt/auxtel.png
 
    Screenshot of the CVT displaying a recent AuxTel on-sky image.
 
-.. figure:: images/cvt/comcam.png
+.. figure:: _static/cvt/comcam.png
 
    Screenshot of the CVT displaying an emulated ComCam image.
 
-.. figure:: images/cvt/MainCamera.png
+.. figure:: _static/cvt/MainCamera.png
 
    Screenshot of the CVT displaying a full focal-plane (dark) image taken during EO testing at SLAC.
 
@@ -738,14 +800,9 @@ Deliverable 7: Catcher Development
      Subsequently, suggest a developer and/or in-kind contributor continue development.
 
 
-.. warning::
-
-   This section is not yet completed and only reports the current status.
-
-
 The requirements for Catcher were spelled out in the original FAFF report and will not be repeated here, however, it is essentially a service that monitors the control system for specific events and or situations, launches a detailed analysis when those events occur, then produce artifacts and/or alarms when required.
 The Catcher is a name that has been assigned to the group of required functionalities and is not necessarily the suggested name for the required tool.
-An example of a functionality requiring the use of the Catcher would be if excessive jitter is seen in the telescope encoders that are indicative of an external driving force (e.g. vibration) during a slew.
+An example of a functionality requiring the use of the Catcher would be if excessive jitter is seen in the telescope encoders that are indicative of an external driving force (e.g., vibration) during a slew.
 If one was only interested in image quality, then this analysis could be calculated when an image is taken via the Rapid Analysis framework.
 However, there are many effects need to be acted on that are independent images, and therefore utilize the Catcher.
 Lastly, it should be noted that the Catcher is not required to act on results generated by Rapid Analysis; detailed analyses of those data products would be accomplished using the `analysis_tools` package, with metrics fed back into the telemetry stream and alarms raised by the Watcher.
@@ -755,7 +812,7 @@ The Catcher high-level design work is being documented in `a technote <https://t
 The addition of new tools is not being taken lightly, but was originally thought to ease the net complexity of development, usage and maintenance.
 At this time, it appears that the fundamental issue with these tools is getting reporting from those analysis back into the control system architecture.
 An example of such an interaction is the requirement of being able to report issues to observers via LOVE.
-For this reason, it is currently envisioned that the Catcher will have to utilize the CSC architecture and perform data reduction with DM tools using the OCPS, but this is still being explored.
+For this reason, it is currently envisioned that the Catcher will have to utilize the CSC architecture and perform data reduction with DM tools using the OCPS, but this is still being explored and will be handled by the implementation group.
 
 While the design requirements for the Catcher are based upon the numerous FAFF use-cases, the initial design prototype is based upon the execution of two representative scenarios that broadly summarize the main functionalities.
 The fundamental difference between the use-cases is the involvement of on-the-fly image processing and interaction with the OCPS.
@@ -780,9 +837,9 @@ This use-case forces interactions with image telemetry and analysis.
 It is anticipated this situation will primarily apply when specialized reductions and/or analyses are required that are not available as part of SFP.
 Presumably the calculations will be CPU intensive or they would be done for every exposure.
 
-**Trigger:** An endReadout event from a camera (e.g. LATISS)
+**Trigger:** An endReadout event from a camera (e.g., LATISS)
 
-**Execution (job):** Gathers data from the EFD, and calculates a metric (e.g. RMS of telescope encoders and the wind speed).
+**Execution (job):** Gathers data from the EFD, and calculates a metric (e.g., RMS of telescope encoders and the wind speed).
 If the metric reports back as True, then a command to the OCPS is sent to start a detailed analysis and persist the result.
 From that analysis, if a threshold is surpassed, an alert should be generated for the observer.
 Optional: Assembly of an object (artifact) that can be read, processed, and displayed in by a Bokeh app.
@@ -818,7 +875,7 @@ Where special training is required is with regards to use of the Catcher, and th
 Because the development of the Catcher framework is in its infancy, a formal training package cannot yet be developed.
 However, upon completion, or at least the implementation of an alpha version, a bootcamp, or series of bootcamps, will be necessary that explains the following items:
 
-   - How to create a trigger for a Catcher job based on the evaluation of a boolean condition (e.g. measured value exceeds a threshold)
+   - How to create a trigger for a Catcher job based on the evaluation of a boolean condition (e.g., measured value exceeds a threshold)
    - The multiple scenarios in which an analysis job can be written and executed
    - The multiple types of artifacts that can be generated, ranging from a single scalar, to complex data objects, to a png file.
    - How to archive the artifact
@@ -847,7 +904,7 @@ Deliverable 9: Task Prioritization
 
 Because much of the work is highly parallelizable, this report groups tasks into prioritization tiers; tasks are not ranked individually within a given tier.
 These tasks are focused on developing high-level architectures.
-The list does not include all the specific displays and/or tools that are required for each individual system (e.g. the AOS GUIs).
+The list does not include all the specific displays and/or tools that are required for each individual system (e.g., the AOS GUIs).
 However, a non-exhaustive list of these tools are discussed in the `Recommended Tools`_ section.
 Lastly, the reader should recognize that there is a lot of work to be accomplished that can only be done by small and specific groups of individuals.
 Coordination and management of these tasks will be critical to success of commissioning.
@@ -858,6 +915,8 @@ Tier 1:
 
 - Complete transition of the Antu servers to the summit.
   This task is required before many of the Tier 2 tasks can make significant process because the Rapid Analysis payload and supporting framework will run on this cluster.
+- Assemble a design-and-implementation team to guide the development of the new tools and functionalities.
+  They can also be consulted for clarification and/or additional details regarding the content of this report.
 
 Tier 2:
 ^^^^^^^
@@ -895,6 +954,42 @@ Tier 3:
 
 Again, developing a common toolset between the commissioning team and the DRP, or one that is based off the tooling being discussed here, is strongly recommended.
 This is not explicitly listed as a priority as it should be a continually ongoing activity.
+
+Tool Integration
+^^^^^^^^^^^^^^^^
+
+This report envisions a set of data analysis and display capabilities that are collectively needed to accomplish the goals of commissioning, and ultimately transition Rubin Observatory to a well-understood operational system.
+Considering the range of capabilities, and the necessary adoption of existing tools as the basis for some of them (due to limited availability of additional development effort), we recognize that some tools will be delivered as distinct, separately developed, user-facing applications.
+This raises the risk of creating a complex user environment, but nevertheless seems unavoidable.
+However, as discussed in the `Executive Summary`_ and shown in :numref:`fig_data_flow` and :numref:`fig_venn_diagram`, a more-unified tool set can be created with a modest amount of additional effort.
+
+To facilitate a smoother user-experience when using multiple tools together to understand the data and the performance of the system, we make the following recommendations:
+
+#. Creation of an entry point to the toolsets with static documentation describing each tools' primary functionalities and data access capability.
+
+#. The different tools should use common typographical conventions for displaying the names and IDs of things (datasets, physical components, etc.), for displaying time stamps, and for displaying sky coordinates.
+   Where tools have data-entry fields that accept such IDs, times, and coordinates, they should accept ones copied and pasted from other tools.
+   Especially where these data references are not completely trivially selectable, e.g., by double-clicking, the provision of "copy to clipboard" buttons in the UI is suggested in preference to forcing users to drag-select.
+
+#. The above conventions should be developed, possibly together with associated Python API support, usable in Nublado, to facilitate retrieving data in a notebook with minimal effort starting from a data reference displayed in one of the tools.
+   Said more explicitly, the goal is to minimize the clicking and typing required to, e.g., retrieve an image in Nublado based on a reference to that image displayed elsewhere.
+   Recent versions of RubinTV, for instance, expose a DataID string for an image that is then directly usable in a Butler query.
+
+#. Each tool should expose a means of being invoked externally, e.g., from another tool, to drive it immediately to a selection of data to be displayed or analyzed.
+   Where possible, these should support both exposure-based and time-based references to the data.
+   The implementation team(s) should seek standardization of these interfaces across tools to the greatest practical extent.
+   The intent of this recommendation is to allow rapid navigation from tool to tool without the need to repeat a data-selection query or, ideally, even retype or copy-paste.
+
+#. At least one of the delivered tools should use the above capability to enable linking to all the other available tools, to allow its use as an entry point.
+   This can be one of the tools already envisioned (e.g., the evolved RubinTV), and/or an additional central page.
+   The FAFF group has chosen not to specify which way to proceed, in order to give the implementation team more flexibility to assemble the system incrementally and evolve the user experience based on lessons learned along the way.
+
+#. If possible at low cost, the tools should have similar visual appearance (e.g., physical layout, color).
+   This feature is a lower priority than those above, and is likely to be limited by the customization options available in various Web toolkits that might be used.
+
+With these recommendations implemented, it would not be necessary for every tool to fully replicate the data-query capabilities of every other tool.
+If it is easier, for instance, to identify images taken at extreme airmasses in a particular tool, the resulting data could then be examined in the other tools via the 'horizontal links' between tools enabled by the above recommendations."
+
 
 Recommended Tools
 ^^^^^^^^^^^^^^^^^
@@ -986,6 +1081,13 @@ FAFF-REQ-0059
 **Rationale:** The metrics are scalars and therefore do not include all required information to diagnose a problem.
 One way to satisfy this requirement is to ensure that the "analysis_tools metric modules" are importable and the objects use to determine them are either stored, or at a minimum are easily reproduced.
 
+FAFF-REQ-0061
+^^^^^^^^^^^^^
+**Specification:** A toolset is required to combine, analyze and alert observers based on metrics derived from Rapid Analysis and control system events and telemetry.
+
+**Rationale:** See section `On-the-fly Quality Assessment and Alerts`_.
+
+
 .. _data-access-reqs:
 
 Data Access
@@ -1003,14 +1105,14 @@ It is also acceptable that a query returns a link to a file in the LFA.
 
 FAFF-REQ-0055
 ^^^^^^^^^^^^^
-**Specification:** The Rapid Analysis processed data and artifacts must be accessible from the major data processing facilities (e.g. Summit, Base, USDF).
+**Specification:** The Rapid Analysis processed data and artifacts must be accessible from the major data processing facilities (e.g., Summit, Base, USDF).
 
 **Rationale:** This will probably require replication of the data, analogous to Sasquatch for replicating the EFD data.
 
 
 FAFF-REQ-0056
 ^^^^^^^^^^^^^
-**Specification:** The Scheduler must be able to access the Rapid Analysis database.
+**Specification:** The Scheduler must be able to access the Rapid Analysis (and/or visit) database.
 
 **Rationale:** If the database is implemented in Sasquatch a mechanism to access the data already exists.
 The Scheduler is currently keeping an independent visit database that needs to be merged.
@@ -1037,12 +1139,12 @@ FAFF-REQ-0060
 
 
 
-.. _Other Findings and Identified Issues:
+.. .. _Other Findings and Identified Issues:
 
-Other Findings and Identified Issues
-====================================
+.. Other Findings and Identified Issues
+.. ====================================
 
-During the existence of this working group, numerous items were identified as problematic and needing to be addressed but either were not well fit to a charge question or fell out of the scope of the charge.
-This section contains information regarding numerous issues which were identified and require attention.
+.. During the existence of this working group, numerous items were identified as problematic and needing to be addressed but either were not well fit to a charge question or fell out of the scope of the charge.
+.. This section contains information regarding numerous issues which were identified and require attention.
 
-- Lack of definition regarding degraded mode(s)
+.. - Lack of definition regarding degraded mode(s)

@@ -320,10 +320,6 @@ Deliverable 3: Interacting with Rapid Analysis Data and Metrics
 
       This includes tasks defined for the catcher, OCPS jobs, AuxTel/ComCam/LSSTCam processing, and the rendez-vous of data from multiple sources (DIMM, all-sky etc).
 
-.. warning::
-
-   This section is not yet completed and only reports the current status.
-
 
 This section considers the case of scalar fields, where the same metric is computed and visualized on multiple spatial scales.
 A straightforward example to consider is a metric as a function of detector and/or amplifier on the focal plane.
